@@ -71,6 +71,18 @@ static word_t my_div(word_t src1, word_t src2)
   }
 }
 
+static word_t my_divu(word_t src1, word_t src2)
+{
+  if(src2 == 0)
+    return (word_t)-1;
+  else
+  {
+    return (word_t)src1 / (word_t)(src2);
+  }
+}
+
+
+
 static word_t my_rem(word_t src1, word_t src2) 
 {
   if (src2 == 0) 
@@ -150,6 +162,7 @@ static int decode_exec(Decode *s)
   INSTPAT("0000000 ????? ????? 011 ????? 01100 11", sltu   , R, R(rd) = (src1 < src2)  ); 
 
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, R(rd) = my_div(src1, src2) );
+  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, R(rd) = my_divu(src1, src2) );
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = my_rem(src1, src2) );
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = my_remu(src1, src2) );
   
