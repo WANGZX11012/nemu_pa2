@@ -82,6 +82,17 @@ static word_t my_rem(word_t src1, word_t src2)
   return (word_t)(a % b); // C99: % 符号随被除数，且与 RISC-V 向零舍入匹配
 }
 
+
+
+
+static word_t my_remu(word_t src1, word_t src2) 
+{
+  if (src2 == 0) 
+    return src1;
+
+  return (word_t)(src1 % src2); 
+}
+
 static word_t my_mul(word_t a, word_t b) 
 {
   int64_t prod = (int64_t)(int32_t)a * (int64_t)(int32_t)b;
@@ -140,6 +151,8 @@ static int decode_exec(Decode *s)
 
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, R(rd) = my_div(src1, src2) );
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = my_rem(src1, src2) );
+  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = my_remu(src1, src2) );
+  
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = my_mul(src1, src2) );
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = my_mulh(src1, src2) );
 
