@@ -1,4 +1,7 @@
-CROSS_COMPILE := riscv64-unknown-elf-
+#这个不行
+CROSS_COMPILE := riscv64-linux-gnu-
+#这个可以
+# CROSS_COMPILE := riscv64-unknown-elf-
 COMMON_CFLAGS := -fno-pic -march=rv64g -mcmodel=medany -mstrict-align
 CFLAGS        += $(COMMON_CFLAGS) -static
 ASFLAGS       += $(COMMON_CFLAGS) -O0
