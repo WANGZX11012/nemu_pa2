@@ -90,7 +90,11 @@ static word_t my_mul(word_t a, word_t b)
   return (word_t)prod; // 取低 32 位（用 64 位中间值避免宽度问题）
 }
 
-
+static word_t my_mulh(word_t a, word_t b) 
+{
+  int64_t prod = (int64_t)(int32_t)a * (int64_t)(int32_t)b;
+  return (word_t)(prod >> 32); // 返回有符号乘积的高 32 位
+}
 
 
 static int decode_exec(Decode *s) 
@@ -135,6 +139,7 @@ static int decode_exec(Decode *s)
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, R(rd) = my_div(src1, src2) );
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = my_rem(src1, src2) );
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = my_mul(src1, src2) );
+  INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = my_mulh(src1, src2) );
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   
