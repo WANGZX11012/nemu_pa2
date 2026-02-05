@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   /* Start engine. */
-  engine_start();
+  engine_start();//就进入sdb调试
 
   return is_exit_status_bad();
 }
