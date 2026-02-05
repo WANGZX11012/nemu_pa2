@@ -98,6 +98,8 @@ static int parse_args(int argc, char *argv[]) {
 }
 
 void init_monitor(int argc, char *argv[]) 
+//是程序启动与简单调试器（simple debugger/sdb）的初始化入口
+//负责启动时的环境准备与交互式调试入口。
 {
   /* Perform some global initialization. */
 
