@@ -20,9 +20,9 @@
 #include <assert.h>
 #include <string.h>
 
-// this should be enough
+
 static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // a little larger than `buf`
+static char code_buf[65536 + 128] = {}; 
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -39,13 +39,13 @@ static uint32_t choose(uint32_t n)
 static void gen_num()//随机整数的生成
 {
   char num_str[10];
-  if(!(sprintf(num_str, "%d",(rand() % 100 + 1))))
+  if(!(sprintf(num_str, "%d",(rand() % 100 + 1))))//写入num str if也会执行 
     {
       printf("error gen num");
       return;
     }
   else
-  strcat(buf, num_str);
+  strcat(buf, num_str); //追加到buf里面
 }
 
 static void gen_hex_num()//生成随机4位十六进制数，格式 0x1111
@@ -78,9 +78,9 @@ static void gen_unary_ops()
 
 
 static void gen_rand_expr(); 
-static void gen_term() 
+static void gen_term() //生成数字 16进制 和带括号的子表达式
 {
-  if (strlen(buf) > 50) 
+  if (strlen(buf) > 50) //太长就生成数字
   {
     gen_num();
     return;
@@ -123,16 +123,19 @@ static void gen_rand_expr()
   }
 }
 
-int main(int argc, char *argv[]) {
-  int seed = time(0);
-  srand(seed);
+int main(int argc, char *argv[]) 
+{
+  int seed = time(0);// 用当前时间作为随机数种子，保证每次运行生成不同的随机序列
+  srand(seed);       // 初始化 rand() 使用的种子
   int loop = 1;
-  if (argc > 1) {
+  if (argc > 1) // 如果命令行带参数，则把第一个参数当作循环次数
+  {     
     sscanf(argv[1], "%d", &loop);
   }
  
   int i;
-  for (i = 0; i < loop; i ++) {
+  for (i = 0; i < loop; i ++) 
+  {
     
     buf[0] = '\0';//循环生成表达式前清空缓冲区
     gen_rand_expr();
@@ -142,24 +145,24 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
-    sprintf(code_buf, code_format, buf);
+    sprintf(code_buf, code_format, buf);// 将生成的表达式插入到 C 源代码模板 code_format 中，生成完整的程序源码
 
-    FILE *fp = fopen("/tmp/.code.c", "w");
-    assert(fp != NULL);
-    fputs(code_buf, fp);
+    FILE *fp = fopen("/tmp/.code.c", "w");// 打开临时文件用于写入源码
+    assert(fp != NULL);                   // 确认文件打开成功（失败则终止）
+    fputs(code_buf, fp);                  // 把源码写入临时文件
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");// 调用系统命令编译临时源码为可执行文件
     if (ret != 0) continue;
 
-    fp = popen("/tmp/.expr", "r");
+    fp = popen("/tmp/.expr", "r");  // 运行编译出的程序，并打开管道读取其输出
     assert(fp != NULL);
 
     int result;
-    ret = fscanf(fp, "%d", &result);
+    ret = fscanf(fp, "%d", &result);// 从子进程输出中读取整数结果
     pclose(fp);
 
-    printf("%u %s\n", result, buf);
+    printf("%u %s\n", result, buf);// 打印子程序返回的结果（无符号格式）以及对应的表达式
   }
   return 0;
 }

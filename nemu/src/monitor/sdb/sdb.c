@@ -381,7 +381,8 @@ static int cmd_d(char *args)
   
   char *endptr;
   int wp_num = strtol(wp_no_str, &endptr, 10);
-  if (*endptr != '\0' || wp_num < 0) {
+  if (*endptr != '\0' || wp_num < 0) 
+  {
     printf("Invalid watchpoint number: %s\n", wp_no_str);
     return 0;
   }
