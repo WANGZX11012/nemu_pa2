@@ -111,7 +111,7 @@ typedef struct token
   char str[1024];         // 标记的字符串内容（最多 31 字符 + 结束符）
 } Token;
 // 全局标记数组：存储解析出的标记
-static Token tokens[1024] __attribute__((used)) = {};
+static Token tokens[1024] __attribute__((used)) = {};// 防止被优化掉
 // 当前标记数量
 static int nr_token __attribute__((used))  = 0;
 
@@ -121,7 +121,7 @@ static bool make_token(char *e) {
   int position = 0;
   int i;
 
-  regmatch_t pmatch;
+  regmatch_t pmatch; //起止位置
 
   nr_token = 0;// 重置标记数量
 

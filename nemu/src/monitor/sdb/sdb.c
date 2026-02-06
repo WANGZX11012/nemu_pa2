@@ -268,9 +268,12 @@ static int cmd_p(char *args)
     return 0;
   }
   int expr_result = expr(args, &success);
-  if (success) {
+  if (success) 
+  {
     printf("Expr = %u (0x%08x)\n", expr_result, (uint32_t)expr_result);
-  } else {
+  } 
+  else 
+  {
     printf("Invalid expression\n");
   }
   return 0;
@@ -278,7 +281,7 @@ static int cmd_p(char *args)
 
 static int cmd_t_expr(char *args)
 {
-  FILE *fp = fopen(args, "r");
+  FILE *fp = fopen(args, "r");//kedu
   if(!fp)
   {
     printf("Fail to open test file %s\n",args);
@@ -296,7 +299,7 @@ static int cmd_t_expr(char *args)
     char expr_str[1024];
 
     if( (sscanf(line, "%u %[^\n]", &expected, expr_str)) == 2)//如果成功读取并存储
-    //读取一行 前面的整数存expected后面的直到换行符存expr_str
+    //读取一行 前面的整数存expected 后面的直到换行符存expr_str
     {
       // 去掉前导空格
       char *start = expr_str;
@@ -304,7 +307,7 @@ static int cmd_t_expr(char *args)
       strcpy(expr_str, start);
 
       bool success;
-      div_zero_flag = false;
+      div_zero_flag = false;//初始化false
 
       word_t result = expr(expr_str, &success);
 
@@ -378,7 +381,8 @@ static int cmd_d(char *args)
   
   char *endptr;
   int wp_num = strtol(wp_no_str, &endptr, 10);
-  if (*endptr != '\0' || wp_num < 0) {
+  if (*endptr != '\0' || wp_num < 0) 
+  {
     printf("Invalid watchpoint number: %s\n", wp_no_str);
     return 0;
   }
