@@ -268,9 +268,12 @@ static int cmd_p(char *args)
     return 0;
   }
   int expr_result = expr(args, &success);
-  if (success) {
+  if (success) 
+  {
     printf("Expr = %u (0x%08x)\n", expr_result, (uint32_t)expr_result);
-  } else {
+  } 
+  else 
+  {
     printf("Invalid expression\n");
   }
   return 0;
@@ -278,7 +281,7 @@ static int cmd_p(char *args)
 
 static int cmd_t_expr(char *args)
 {
-  FILE *fp = fopen(args, "r");
+  FILE *fp = fopen(args, "r");//kedu
   if(!fp)
   {
     printf("Fail to open test file %s\n",args);
