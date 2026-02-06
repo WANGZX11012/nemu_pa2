@@ -299,7 +299,7 @@ static int cmd_t_expr(char *args)
     char expr_str[1024];
 
     if( (sscanf(line, "%u %[^\n]", &expected, expr_str)) == 2)//如果成功读取并存储
-    //读取一行 前面的整数存expected后面的直到换行符存expr_str
+    //读取一行 前面的整数存expected 后面的直到换行符存expr_str
     {
       // 去掉前导空格
       char *start = expr_str;
@@ -307,7 +307,7 @@ static int cmd_t_expr(char *args)
       strcpy(expr_str, start);
 
       bool success;
-      div_zero_flag = false;
+      div_zero_flag = false;//初始化false
 
       word_t result = expr(expr_str, &success);
 
