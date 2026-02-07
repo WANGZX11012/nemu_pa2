@@ -401,7 +401,7 @@ static uint32_t eval(int p, int q, bool *success)  //两个bug(1+2) + (3+4)会�
   else if(p == q) //单个token 整数或者寄存器
   {
     if(tokens[p].type == TK_DEC)
-      return strtoul(tokens[p].str, NULL, 10);//?;
+      return strtoul(tokens[p].str, NULL, 10);//?
     else if(tokens[p].type == TK_REG)
     {
       
