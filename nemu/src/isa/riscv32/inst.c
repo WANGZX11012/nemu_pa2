@@ -119,6 +119,12 @@ static word_t my_mulh(word_t a, word_t b)
   return (word_t)(prod >> 32); // 返回有符号乘积的高 32 位
 }
 
+static word_t my_mulhu(word_t a, word_t b) 
+{
+  uint64_t prod = (uint64_t)a * (uint64_t)b;
+  return (word_t)(prod >> 32); 
+}
+
 
 static int decode_exec(Decode *s) 
 {
@@ -168,7 +174,8 @@ static int decode_exec(Decode *s)
   
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = my_mul(src1, src2) );
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = my_mulh(src1, src2) );
-
+  INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu  , R, R(rd) = my_mulhu(src1, src2) );
+  
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(rd) = src1 + imm ); //addi
