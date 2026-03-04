@@ -20,9 +20,9 @@ static int it_cnt = 0; // 当前已填条目数
 void itbuf_p(vaddr_t pc, const char* logbuf)
 {
     if(logbuf == NULL) return;
-    /* debug: print a short preview to stdout to ensure push is called */
-    printf("DBG itbuf_p pc=" FMT_WORD " preview=%.120s\n", pc, logbuf);
-    fflush(stdout);
+    // /* debug: print a short preview to stdout to ensure push is called */
+    // printf("DBG itbuf_p pc=" FMT_WORD " preview=%.120s\n", pc, logbuf);
+    // fflush(stdout);
 
     my_itbuf[it_pos].pc = pc;
     strncpy(my_itbuf[it_pos].logstr, logbuf, IT_LOGSZ -1);

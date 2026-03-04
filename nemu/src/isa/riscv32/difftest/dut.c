@@ -41,6 +41,9 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) //pc是是nemu的pc，
       printf("Difftest failed at pc = " FMT_WORD "\n", pc);
       printf("  reg[%2d] (%-4s): ref = " FMT_WORD ", dut = " FMT_WORD "\n",
              i, reg_name(i), ref_r->gpr[i], cpu.gpr[i]);
+  #ifdef CONFIG_ITRACE //不匹配时itrace打印
+      itbuf_d(10);
+  #endif
       return false;
     }
   }
