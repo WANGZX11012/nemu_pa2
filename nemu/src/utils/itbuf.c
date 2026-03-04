@@ -35,32 +35,25 @@ void itbuf_p(vaddr_t pc, const char* logbuf)
 
 void itbuf_d(int n)
 {
-    if(it_cnt == 0)
-    {
+    if (it_cnt == 0) {
         printf("empty itbuf\n");
-            return;  
+        return;
     }
-        
-    if( n <= 0)
-    {
+    if (n <= 0) {
         printf("enter a positive num\n");
-            return;
+        return;
     }
 
-    if( n > it_cnt) n = it_cnt;
-    //上面部分处理 n
-    
-    int total = it_cnt < (2*n+1) ? it_cnt : (2*n+1);
-    int center = (it_pos - 1 + IT_LEN) % IT_LEN;
-    int half = total / 2;
-    int start = (center - half + IT_LEN) % IT_LEN;
-    for (int k = 0; k < total; k++) 
-    {
-        int idx = (start + k) % IT_LEN;
-        if (k == half) printf("=> ");// 标记中心行
-        printf("IT[%03d] PC=" FMT_WORD " %s\n", idx, my_itbuf[idx].pc, my_itbuf[idx].logstr);
+    /* we print up to n instructions that occur BEFORE the most-recent entry (it_pos-1) */
+    int max_before = (it_cnt > 0) ? (it_cnt - 1) : 0;
+    if (n > max_before) n = max_before;
+    if (n == 0) return;
+
+    int start = (it_pos - n + IT_LEN) % IT_LEN; /* first one to print (oldest) */
+    for (int i = 0; i < n; i++) {
+        int idx = (start + i) % IT_LEN;
+        printf("IT[%03d] PC=" FMT_WORD "  %s\n", idx, my_itbuf[idx].pc, my_itbuf[idx].logstr);
         fflush(stdout);
-        Log("IT[%03d] PC=" FMT_WORD "  %s", idx, my_itbuf[idx].pc, my_itbuf[idx].logstr);
     }
 
 }
