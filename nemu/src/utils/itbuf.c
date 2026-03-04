@@ -56,7 +56,7 @@ void itbuf_d(int n)
         fflush(stdout);
     }
 
-    printf("=>");
+    printf(" => ");
     printf("IT[%03d] PC=" FMT_WORD "  %s\n", it_pos-1, my_itbuf[it_pos - 1].pc, my_itbuf[it_pos - 1].logstr);
 
 }
