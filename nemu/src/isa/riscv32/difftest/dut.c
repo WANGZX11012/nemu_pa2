@@ -17,6 +17,8 @@
 #include <cpu/difftest.h>
 #include "../local-include/reg.h"
 
+#include "itbuf.h" //new
+
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) //pc是是nemu的pc，ref_r结构体中是spike的各种量 
 //cpu.pc 是执行后的 PC（post‑exec）
 //传入的这个pc是刚刚执行完成的指令的地址
@@ -26,6 +28,9 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) //pc是是nemu的pc，
   if (ref_r->pc != cpu.pc) {
     printf("Difftest failed at pc = " FMT_WORD "\n", pc);
     printf("  pc : ref = " FMT_WORD ", dut = " FMT_WORD "\n", ref_r->pc, cpu.pc);
+  #ifdef CONFIG_ITRACE
+      itbuf_d(10); /* 打印最近 10 条 */
+  #endif
     return false;
   }
 
