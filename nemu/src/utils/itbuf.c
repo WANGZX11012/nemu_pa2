@@ -56,7 +56,7 @@ void itbuf_d(int n)
         printf("IT[%04d] PC= %-30s\n", idx,  my_itbuf[idx].logstr);
     }
 
-        printf(ANSI_FMT("=>", ANSI_FG_RED));
+        printf(ANSI_FMT(" => ", ANSI_FG_RED));
         printf("IT[%04d] PC= %-30s\n", it_pos-1,  my_itbuf[it_pos - 1].logstr);
 
 }
