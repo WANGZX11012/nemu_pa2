@@ -52,7 +52,6 @@ void itbuf_d(int n)
     int start = (it_pos - n + IT_LEN) % IT_LEN; /* first one to print (oldest) */
     for (int i = 0; i < n - 1; i++) {
         int idx = (start + i) % IT_LEN;
-        printf("    ");
         printf("IT[%03d] PC=" FMT_WORD "  %s\n", idx, my_itbuf[idx].pc, my_itbuf[idx].logstr);
         fflush(stdout);
     }
