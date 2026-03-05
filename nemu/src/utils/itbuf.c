@@ -53,10 +53,10 @@ void itbuf_d(int n)
     for (int i = 0; i < n - 1; i++) {
         int idx = (start + i) % IT_LEN;
         printf("    ");
-        printf("IT[%04d] PC=  %-30s\n", idx,  my_itbuf[idx].logstr);
+        printf("IT[%04d] PC= %-30s\n", idx,  my_itbuf[idx].logstr);
     }
 
         printf(" => ");
-        printf("IT[%04d] PC=  %-30s\n", it_pos-1,  my_itbuf[it_pos - 1].logstr);
+        printf("IT[%04d] PC= %-30s\n", it_pos-1,  my_itbuf[it_pos - 1].logstr);
 
 }
