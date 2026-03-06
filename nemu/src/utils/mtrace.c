@@ -3,7 +3,7 @@
 
 void p_mread(paddr_t addr, int len, word_t val) //物理内存读
 {
-    printf("mem read at " FMT_PADDR " len = %d val = %d\n", addr, len, val);
+    printf("mem read at " FMT_PADDR " len = %d val = 0x%08x\n", addr, len, val);
     log_write("MTR R " FMT_PADDR " len=%d val = %d\n", addr, len, val);
 }
 
