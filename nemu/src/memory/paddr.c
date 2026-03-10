@@ -18,8 +18,6 @@
 #include <device/mmio.h>
 #include <isa.h>
 
-#include "mtrace.h"
-
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
@@ -31,13 +29,11 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
-  IFDEF(CONFIG_MTRACE, p_mread(addr, len, ret));  //MTRACE
   return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
-  IFDEF(CONFIG_MTRACE, p_mwrite(addr, len, data)); //MTRACE
 }
 
 static void out_of_bound(paddr_t addr) {
@@ -54,22 +50,15 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
-word_t paddr_read(paddr_t addr, int len) 
-{
-  
+word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-
-  IFDEF(CONFIG_MTRACE, p_mread(addr, len, 0)); // 越界也记录，value 用 0 或者特殊标志
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  
-  IFDEF(CONFIG_MTRACE, p_mwrite(addr, len, data)); // 越界也记录
   out_of_bound(addr);
 }
