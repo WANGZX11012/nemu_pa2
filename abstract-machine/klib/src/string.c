@@ -79,25 +79,23 @@ int strcmp(const char *s1, const char *s2)
 
 int strncmp(const char *s1, const char *s2, size_t n) 
 {
-  // panic("Not implemented");
   panic_on(s1 == NULL || s2 == NULL, "strncmp: NULL pointer");
-  
   size_t i = 0;
-  
-  while (*s1 && *s1 == *s2 && i < n) 
+  for (; i < n; i++) 
   {
-    s1++; s2++;
-    i++;
+    unsigned char c1 = (unsigned char)s1[i];
+    unsigned char c2 = (unsigned char)s2[i];
+    if (c1 != c2) return (int)c1 - (int)c2;
+    if (c1 == '\0') return 0;
   }
-  return (int)((unsigned char)*s1) - (int)((unsigned char)*s2); //返回0代表相等
-
+  return 0;
 }
 
 void *memset(void *s, int c, size_t n) 
 {
   // panic("Not implemented");
   unsigned char *p = (unsigned char *)s;
-  for(; n > 0; n--)
+  for(; n > 0; n--)    //正确应该是n>0 我改成n>5 把函数改错进行测试
   {
     *p = (unsigned char) c;
     p++;
