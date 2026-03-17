@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "Vtop.h"
 #include "verilated.h"
+#include "verilated_vcd_c.h"
 
 // 最小程序内存：按32位字存放指令
 static uint32_t pmem[256] = {
@@ -20,20 +21,34 @@ static inline uint32_t pmem_read(uint32_t addr) {
 
 int main(int argc, char** argv) {
   Verilated::commandArgs(argc, argv);
+
+
+  Verilated::traceEverOn(true);
+  VerilatedVcdC* tfp = new VerilatedVcdC;
+
+  
+
   Vtop *top = new Vtop;
+
+  top->trace(tfp, 0);
+  tfp->open("obj_dir/wave.vcd");
+  vluint64_t sim_time = 0;
 
   // reset
   top->clk = 0;
   top->reset = 1;
   top->inst = 0;
   top->eval();
+  tfp->dump(sim_time++);
 
   top->clk = 1;
   top->eval();
+  tfp->dump(sim_time++);
 
   top->clk = 0;
   top->reset = 0;
   top->eval();
+  tfp->dump(sim_time++);
 
   // 暂时用固定步数（后续可换成 ebreak 退出）
   for (int i = 0; i < 50; i++) {
@@ -41,12 +56,15 @@ int main(int argc, char** argv) {
     top->inst = pmem_read(top->pc);
     printf("pc=0x%08x inst=0x%08x\n", top->pc, top->inst);
     // 2) 一个时钟周期
-    top->clk = 1; top->eval();
-    top->clk = 0; top->eval();
+    top->clk = 1; top->eval(); tfp->dump(sim_time++);
+    top->clk = 0; top->eval(); tfp->dump(sim_time++);
 
     // 可选调试
     
   }
+
+  tfp->close();
+  delete tfp;
 
   delete top;
   return 0;
