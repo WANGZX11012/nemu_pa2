@@ -54,7 +54,7 @@ void init_ftrace(const char *elf_path)
     fclose(fp);
 
     Elf32_Ehdr *eh = (Elf32_Ehdr*)elf_buf; //将读入的内容解析为ELF文件头结构
-    Elf32_Shdr *sh = (Elf32_Shdr*)(elf_buf + eh->e_shoff);
+    Elf32_Shdr *sh = (Elf32_Shdr*)(elf_buf + eh->e_shoff);  //section headers解析 通过sh[i]访问节头，例如.symtbl
     // 把 elf_buf + e_shoff 解释成节头数组的起始地址，
     // 转换为 Elf32_Shdr * 以方便按 sh[index] 访问每个节头。
 
@@ -68,9 +68,9 @@ void init_ftrace(const char *elf_path)
         return;
       }
     
-    for(int i = 0; i < eh->e_shnum; i++)
+    for(int i = 0; i < eh->e_shnum; i++)//遍历所有节头
     {
-        if(sh[i].sh_type == SHT_SYMTAB)
+        if(sh[i].sh_type == SHT_SYMTAB)//寻找符号表节symtbl
         {
             syms = (Elf32_Sym*)(elf_buf + sh[i].sh_offset);//指向节数据的开头
             nsyms = sh[i].sh_size / sh[i].sh_entsize;//计算符号表项个数
