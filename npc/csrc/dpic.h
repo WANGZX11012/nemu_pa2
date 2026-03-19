@@ -1,0 +1,12 @@
+#ifndef NPC_DPIC_H
+#define NPC_DPIC_H
+
+#include <cstdint>
+
+// Read instruction word from simulated program memory
+uint32_t pc_read(uint32_t addr);
+
+// DPI-C exposed ebreak handler (implemented in C++)
+extern "C" void npc_ebreak(int code);
+
+#endif // NPC_DPIC_H
