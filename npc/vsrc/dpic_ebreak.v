@@ -7,9 +7,12 @@ module dpic_ebreak(
 );
 
   // EBREAK 
-  localparam EBREAK = 32'h00100073;
+  localparam EBREAK     = 32'h00100073;
 
-  always @(posedge clk) begin
+
+
+  always @(posedge clk) 
+  begin
     if (inst == EBREAK) begin
       // pass PC as code/context to the DPI-C handler
       npc_ebreak(pc);

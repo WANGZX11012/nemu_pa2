@@ -12,11 +12,11 @@ module PCReg(
 );
 
 
-initial pc = 32'h0; // 仿真方便
+initial pc = 32'h8000_0000; // 仿真方便
 
   always @(posedge clk) 
   begin
-    if (reset) pc <= 32'h0;
+    if (reset) pc <= 32'h8000_0000;//初始化
     else       pc <= next_pc;
   end
 

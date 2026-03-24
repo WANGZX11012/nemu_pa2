@@ -68,6 +68,7 @@ CC        = $(CROSS_COMPILE)gcc
 CXX       = $(CROSS_COMPILE)g++
 LD        = $(CROSS_COMPILE)ld
 AR        = $(CROSS_COMPILE)ar
+RANLIB    = $(CROSS_COMPILE)ranlib
 OBJDUMP   = $(CROSS_COMPILE)objdump
 OBJCOPY   = $(CROSS_COMPILE)objcopy
 READELF   = $(CROSS_COMPILE)readelf
@@ -120,6 +121,7 @@ ifeq ($(MAKECMDGOALS),archive)
 $(ARCHIVE): $(OBJS)
 	@echo + AR "->" $(shell realpath $@ --relative-to .)
 	@$(AR) rcs $@ $^
+	@ranlib $@
 else
 # $(1): library name
 define LIB_TEMPLATE =
