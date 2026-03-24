@@ -7,7 +7,7 @@ module dpic_ebreak(
 );
 
   // EBREAK 
-  localparam EBREAK = 32'h00c00067;
+  localparam EBREAK = 32'h00100073;
 
   always @(posedge clk) begin
     if (inst == EBREAK) begin
@@ -17,3 +17,4 @@ module dpic_ebreak(
   end
 
 endmodule
+

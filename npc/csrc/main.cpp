@@ -37,8 +37,25 @@ int main(int argc, char** argv) {
   top->eval();
   tfp->dump(sim_time++);
 
+  if (argc >= 2) 
+  {
+    if (!load_hex_program(argv[1])) 
+    {
+      printf("main: failed to load hex %s, exiting\n", argv[1]);
+      return 1;
+    }
+  } 
+  else 
+  {
+    printf("main: no hex path provided, init pmem only\n");
+
+    init_pmem(1024 * 1024);
+
+    printf("main: using default embedded instruction set\n");
+  }
+
   // 暂时用固定步数（后续可换成 ebreak 退出）
-  for (int i = 0; i < 50; i++) 
+  for (int i = 0; i < 100000; i++) 
   {
     // 1) 取指：用当前pc去读内存
     top->inst = pc_read(top->pc);
