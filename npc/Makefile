@@ -10,7 +10,7 @@ WAVE = $(OBJ_DIR)/wave.vcd
 
 VERILATOR_FLAGS = --cc --exe --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
 
-all:run
+all: build
 
 build:
 	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRCS) $(CSRCS)

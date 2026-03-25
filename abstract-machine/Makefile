@@ -117,13 +117,16 @@ $(DST_DIR)/%.o: %.S
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ifeq ($(MAKECMDGOALS),archive)
-### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
+
+### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar) 
+##	给静态库 .a 生成/刷新符号索引（archive index）。
 $(ARCHIVE): $(OBJS)
 	@echo + AR "->" $(shell realpath $@ --relative-to .)
 	@$(AR) rcs $@ $^
-	@ranlib $@
+	@$(RANLIB) $@
 else
 # $(1): library name
+
 define LIB_TEMPLATE =
 $$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a: force
 	@$$(MAKE) -s -C $$(AM_HOME)/$(1) archive

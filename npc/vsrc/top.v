@@ -18,7 +18,7 @@ module top(
   wire       alu_en;
 
   wire [2:0] wb_sel;
-  wire       npc_sel;    //是1就是jalr触发
+  wire [1:0] npc_sel;    // 00:pc+4 01:jalr 10:jal
   
   
   wire       mem_re;
@@ -117,12 +117,16 @@ module top(
   wire [31:0] pc4;
   assign pc4 = pc + 32'd4;
   wire [31:0]  next_pc;
+  wire [31:0] jal_target;
+  assign jal_target = pc + imm;
   // If running in high-address region (0x8000_0000+), make jalr targets
   // without high bit inherit the base so indirect jumps land in the same
   // address region as the current PC.
   wire [31:0] adj_j_target;
   assign adj_j_target = (pc[31] && !j_target[31]) ? (j_target | 32'h8000_0000) : j_target;
-  assign next_pc = npc_sel ? adj_j_target : pc4;
+  assign next_pc = (npc_sel == 2'b01) ? adj_j_target :
+                   (npc_sel == 2'b10) ? jal_target   :
+                                         pc4;
 
   PCReg u_pcreg(
 

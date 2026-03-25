@@ -18,6 +18,7 @@ void halt(int code) {
   while (1);
 }
 
+void _trm_init() __attribute__((visibility("default")));
 void _trm_init() {
   int ret = main(mainargs);
   halt(ret);
