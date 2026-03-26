@@ -45,6 +45,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     IData/*31:0*/ top__DOT__alu_result;
     IData/*31:0*/ top__DOT__wb_data;
     IData/*31:0*/ top__DOT__rdata;
+    IData/*31:0*/ top__DOT__jal_target_raw;
     IData/*31:0*/ top__DOT__u_exu__DOT__rs1_data;
     IData/*31:0*/ top__DOT__u_exu__DOT__imm;
     IData/*31:0*/ top__DOT__u_exu__DOT__j_target;

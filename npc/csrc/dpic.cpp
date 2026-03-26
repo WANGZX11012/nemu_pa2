@@ -161,8 +161,18 @@ uint32_t pc_read(uint32_t addr)
 extern "C" void npc_ebreak(int code) 
 {
   printf("DPI-C: ebreak at PC=0x%08x\n", code);
-  fflush(stdout);
-  exit(0);
+
+  if(code == 0)
+  {
+    printf("NPC: GOOD TRAP(exit code = 0)\n");
+    exit(0);
+  }
+  else
+  {
+    printf("NPC: BAD TRAP (exit code = %d)\n", code);
+    exit(1);
+  }
+
 }
 
 void init_pmem(size_t bytes) 
