@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   }
 
   // 暂时用固定步数（后续可换成 ebreak 退出）
-  for (int i = 0; i < 100000; i++) 
+  for (int i = 0; i < 10000000; i++) 
   {
     // 1) 取指：用当前pc去读内存
     top->inst = pc_read(top->pc);

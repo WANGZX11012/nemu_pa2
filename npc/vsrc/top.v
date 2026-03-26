@@ -163,7 +163,8 @@ module top(
    ,.mem_width    (mem_width)
    ,.wdata        (r_data2)
    ,.addr         (alu_result)
-   ,.rdata        (rdata)
+    ,.rdata        (rdata)
+    ,.pc           (pc)
 
     );
 
@@ -178,9 +179,4 @@ module top(
  
     );
 
-
-
-
-
   endmodule
-

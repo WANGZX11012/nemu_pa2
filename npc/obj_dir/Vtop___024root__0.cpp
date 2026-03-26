@@ -408,16 +408,11 @@ void Vtop___024root___nba_sequent__TOP__0(Vtop___024root* vlSelf) {
         }
     }
     __VdlySet__top__DOT__u_regfile__DOT__rf__v0 = 0U;
-    if (VL_UNLIKELY(((((IData)(vlSelfRef.top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_8) 
-                       | ((IData)(vlSelfRef.top__DOT__u_idu__DOT__is_add) 
-                          | ((0x37U == (0x0000007fU 
-                                        & vlSelfRef.inst)) 
-                             | (IData)(vlSelfRef.top__DOT__u_idu__DOT__mem_re)))) 
-                      & (0U != (0x0000001fU & (vlSelfRef.inst 
-                                               >> 7U))))))) {
-        VL_WRITEF_NX("[RF] write x%0# <= 0x%08x\n",0,
-                     5,(0x0000001fU & (vlSelfRef.inst 
-                                       >> 7U)),32,vlSelfRef.top__DOT__wb_data);
+    if ((((IData)(vlSelfRef.top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_8) 
+          | ((IData)(vlSelfRef.top__DOT__u_idu__DOT__is_add) 
+             | ((0x37U == (0x0000007fU & vlSelfRef.inst)) 
+                | (IData)(vlSelfRef.top__DOT__u_idu__DOT__mem_re)))) 
+         & (0U != (0x0000001fU & (vlSelfRef.inst >> 7U))))) {
         __VdlyVal__top__DOT__u_regfile__DOT__rf__v0 
             = vlSelfRef.top__DOT__wb_data;
         __VdlyDim0__top__DOT__u_regfile__DOT__rf__v0 

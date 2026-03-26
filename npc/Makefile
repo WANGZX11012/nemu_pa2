@@ -28,6 +28,7 @@ sim: build
 
 clean:
 	rm -rf $(OBJ_DIR)
+	rm ./hex/*.log
 
 .PHONY: all build run sim clean
 

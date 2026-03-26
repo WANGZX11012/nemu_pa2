@@ -191,6 +191,11 @@ void init_pmem(size_t bytes)
 extern "C" uint32_t pmem_read_u32(uint32_t raddr) 
 {
   uint32_t index;
+  uint32_t orig = raddr;
+  if (raddr < PC_BASE) {
+    raddr |= PC_BASE; // temporary map low addresses into pmem high region for debug
+    printf("pmem_read_u32 mapped 0x%08x -> 0x%08x\n", orig, raddr);
+  }
   if (raddr >= PC_BASE) 
   {
     index = (raddr - PC_BASE) >> 2;
@@ -211,6 +216,11 @@ extern "C" uint8_t pmem_read_u8(uint32_t raddr)
 {
   uint32_t index;
   uint32_t byte_off;
+  uint32_t orig = raddr;
+  if (raddr < PC_BASE) {
+    raddr |= PC_BASE; // temporary mapping
+    printf("pmem_read_u8 mapped 0x%08x -> 0x%08x\n", orig, raddr);
+  }
   if (raddr >= PC_BASE) 
   {
     uint32_t off = raddr - PC_BASE;
@@ -234,6 +244,11 @@ extern "C" uint8_t pmem_read_u8(uint32_t raddr)
 extern "C" void pmem_write_u32(uint32_t waddr, uint32_t wdata) 
 {
   uint32_t index;
+  uint32_t orig = waddr;
+  if (waddr < PC_BASE) {
+    waddr |= PC_BASE; // temporary map low addresses into pmem high region for debug
+    printf("pmem_write_u32 mapped 0x%08x -> 0x%08x\n", orig, waddr);
+  }
   if (waddr >= PC_BASE) 
   {
     index = (waddr - PC_BASE) >> 2;
@@ -256,6 +271,11 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
 {
   uint32_t index;
   uint32_t byte_off;
+  uint32_t orig = addr;
+  if (addr < PC_BASE) {
+    addr |= PC_BASE; // temporary mapping
+    printf("pmem_write_u8 mapped 0x%08x -> 0x%08x\n", orig, addr);
+  }
   if (addr >= PC_BASE) 
   {
     uint32_t off = addr - PC_BASE;

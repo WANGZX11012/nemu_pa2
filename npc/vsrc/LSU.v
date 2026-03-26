@@ -18,6 +18,7 @@ module LSU(
     input       [31:0]  wdata,
 
     input       [31:0]  addr,
+    input       [31:0]  pc,
 
     output reg  [31:0]  rdata
 
@@ -57,4 +58,3 @@ end
 
 
 endmodule
-

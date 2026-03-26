@@ -21,8 +21,6 @@ module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (//二读一写寄存器�
   begin
     if (wen && w_addr != 0) begin
       rf[w_addr] <= w_data;
-      // 用 $display 在时钟边沿立即打印本次提交值，避免 $strobe 看到边沿后组合逻辑的新值
-      $display("[RF] write x%0d <= 0x%08x", w_addr, w_data);
     end
     
   end
@@ -32,5 +30,5 @@ module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (//二读一写寄存器�
 
   assign r_a0    = rf[10]; //到时候传给DPIC 来判断good trap bad trap
 
-endmodule
 
+endmodule
