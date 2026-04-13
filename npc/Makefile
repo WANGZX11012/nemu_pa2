@@ -9,6 +9,8 @@ BIN = $(OBJ_DIR)/V$(TOPNAME)
 WAVE = $(OBJ_DIR)/wave.vcd
 
 VERILATOR_FLAGS = --cc --exe --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
+NPC_NEMU_INC = $(abspath ./npc-nemu/include)
+VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC)"
 
 all: build
 

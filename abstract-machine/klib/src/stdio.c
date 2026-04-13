@@ -5,93 +5,129 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-int printf(const char *fmt, ...) 
-{
-  panic("Not implemented");
-}
-
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  panic("Not implemented");
-}
-
-int sprintf(char *out, const char *fmt, ...) 
-{
-  // panic("Not implemented");
-  va_list ap;
-  va_start(ap, fmt);
-
   char *o = out;
   const char *p = fmt;
 
-  while (*p != '\0')
+  while (*p != '\0') 
   {
-    if(*p != '%')//一般字符
+    if (*p != '%') 
     {
-      *o = *p;
-      o++; p++;
+      *o++ = *p++;
       continue;
     }
 
-    p ++; //跳过%
-    if (*p == '%') { *o++ = '%'; p++; continue; } //单独的%
+    p++; // skip '%'
+    if (*p == '%') 
+    {
+      *o++ = '%';
+      p++;
+      continue;
+    }
 
-    if(*p == 'd')
+    if (*p == 'd') 
     {
       int argint = va_arg(ap, int);
       long long v = argint;
-      if(v < 0)
+      if (v < 0) 
       {
-        *o = '-';
-        o++;
+        *o++ = '-';
         v = -v;
       }
-      if(v == 0)
+
+      if (v == 0) 
       {
-        *o = '0';
-        o++;
-      }
-      else
+        *o++ = '0';
+      } 
+      else 
       {
         char buf[32];
         int i = 0;
-        while(v)
+        while (v) 
         {
-          buf[i] = '0' + (v % 10);
-          i++;
-          v = v/10;
+          buf[i++] = '0' + (v % 10);
+          v /= 10;
         }
-        while(i--)
+        while (i--) 
         {
-          *o = buf[i];
-          o++;
+          *o++ = buf[i];
         }
-
       }
-
       p++;
-
     }
-
-    else if (*p == 's')
+    else if (*p == 's') 
     {
       const char *s = va_arg(ap, const char *);
       if (!s) s = "(null)";
       while (*s) *o++ = *s++;
       p++;
     }
-    else
+    else if (*p == 'x')
     {
-      /* 未实现的格式：按字面输出 '%' 和该字符（若有） */
+      unsigned int v = va_arg(ap, unsigned int);
+      if(v == 0)
+      {
+        *o++ = '0';
+      }
+      else
+      {
+        char buf[32];
+        int i = 0;
+
+        while (v)
+        {
+          int d = v % 16;
+          if(d < 10)  buf[i++] = '0' + d;
+          else  buf[i++] = 'a' + (d - 10);
+          v /= 16;
+        }
+
+        while (i--)
+        {
+          *o++ = buf[i]; //反向输出符合顺序
+        }
+      }
+      p++;
+    }
+    else if (*p == 'c')
+    {
+      char ch = (char)va_arg(ap, int);
+      *o++ = ch;
+      p++;
+    }
+    else 
+    {
       *o++ = '%';
       if (*p) *o++ = *p++;
     }
-
   }
-  
-  *o = '\0';
-  va_end(ap);
-  return (int)(o - out);
 
+  *o = '\0';
+  return (int)(o - out);
+}
+
+int sprintf(char *out, const char *fmt, ...) 
+{
+  va_list ap;
+  va_start(ap, fmt);
+  int ret = vsprintf(out, fmt, ap);
+  va_end(ap);
+  return ret;
+}
+
+int printf(const char *fmt, ...) 
+{
+  char buf[1024];
+  va_list ap;
+  va_start(ap, fmt);
+  int ret = vsprintf(buf, fmt, ap);
+  va_end(ap);
+
+  for (int i = 0; i < ret; i++) 
+  {
+    putch(buf[i]);
+  }
+  return ret;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

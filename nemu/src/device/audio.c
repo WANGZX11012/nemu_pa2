@@ -30,12 +30,56 @@ enum {
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 
-static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+static void audio_play(void *userdata, uint8_t *stream, int len)
+{
+  uint32_t n_read = audio_base[reg_count];
+  if(n_read > (uint32_t)len) n_read = len;   //取len和缓冲区大小最小的那个
+
+  if(n_read > 0) //有数据要读
+  {
+    memcpy(stream, sbuf, n_read);//先把sbuf中的音频数据移到stream
+    memmove(sbuf, sbuf + n_read, audio_base[reg_count] - n_read);
+    //n_read是已经被播放掉了 把base大小-nread大小移到前面
+    audio_base[reg_count] -= n_read;//更新还没播放的数据量。
+  }
+
+  if(n_read < (uint32_t)len) //当前声卡缓冲区里的数据不够 SDL 这次要的那么多
+  {
+    memset(stream + n_read, 0, len - n_read);
+  }
+
 }
 
-void init_audio() {
-  uint32_t space_size = sizeof(uint32_t) * nr_reg;
+
+static void audio_io_handler(uint32_t offset, int len, bool is_write)//初始化
+{
+  if(!is_write) return; //
+  if (offset != reg_init * sizeof(uint32_t)) return;
+  if (audio_base[reg_init] == 0) return;
+
+  SDL_AudioSpec s = {0};//初始化结构体
+  s.userdata = NULL;
+  s.freq = audio_base[reg_freq];
+  s.format = AUDIO_S16SYS;
+  s.channels = audio_base[reg_channels];
+  s.samples = audio_base[reg_samples];
+  s.callback = audio_play;
+
+
+  int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
+  assert(ret == 0);
+  ret = SDL_OpenAudio(&s, NULL);
+  assert(ret == 0);
+  SDL_PauseAudio(0);
+
+}
+
+void init_audio() 
+{
+  uint32_t space_size = sizeof(uint32_t) * nr_reg;//audio的各个寄存器数量 freq channels 等等
   audio_base = (uint32_t *)new_space(space_size);
+  memset(audio_base, 0, space_size);//清空audio base
+
 #ifdef CONFIG_HAS_PORT_IO
   add_pio_map ("audio", CONFIG_AUDIO_CTL_PORT, audio_base, space_size, audio_io_handler);
 #else
@@ -43,5 +87,10 @@ void init_audio() {
 #endif
 
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
+  memset(sbuf, 0, CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
+
+  audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
+  audio_base[reg_count] = 0;
+
 }

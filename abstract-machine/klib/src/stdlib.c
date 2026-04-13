@@ -34,7 +34,16 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  panic("Not implemented");
+  // panic("Not implemented");
+  static char * p = NULL;//初始化
+   if (p == NULL) p = (char *)heap.start;
+  size = (size + 7) & ~7; //字节对齐
+  void *ret = p;
+  if(p + size > (char *) heap.end) return NULL;//检查越界
+  
+  p += size;
+
+  return ret;
 #endif
   return NULL;
 }

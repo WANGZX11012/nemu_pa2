@@ -25,7 +25,8 @@ module IDU (
 
   output [2:0]              wb_sel,
   output [1:0]              npc_sel,
-  output [2:0]              branch_type    //BNE BLT等等的判断
+  output [2:0]              branch_type,    //BNE BLT等等的判断
+  output                    invalid
 
 );
 
@@ -49,6 +50,7 @@ localparam IMM_J = 3'b100;
   wire is_sw   = (opcode == 7'b0100011) && (funct3 == 3'b010);
   wire is_lbu  = (opcode == 7'b0000011) && (funct3 == 3'b100);
   wire is_lw   = (opcode == 7'b0000011) && (funct3 == 3'b010);
+  wire is_ebreak = (inst == 32'h00100073);
 
 
   
@@ -103,6 +105,10 @@ localparam IMM_J = 3'b100;
   
   // 不支持分支
   assign branch_type = 3'b000;
+
+  // 非法指令检测：除已支持指令和 ebreak 之外都视为非法
+  assign invalid = ~(is_addi | is_jal | is_jalr | is_add | is_lui |
+                     is_sb | is_sw | is_lbu | is_lw | is_ebreak);
 
   /*opcode 判断imm 类型*/
   always@(*) 

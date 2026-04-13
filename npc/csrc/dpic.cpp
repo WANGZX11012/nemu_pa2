@@ -1,4 +1,5 @@
 #include "dpic.h"
+#include "sim_bridge.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -23,11 +24,14 @@ static const uint32_t default_pc_inst[] =
   0x00200223, // PC=0x00000018: sb   x2,4(x0)   ; store byte (x2&0xff) -> mem[4]
   0x00404283, // PC=0x0000001c: lw   x5,4(x0)   ; load from mem[4] -> x5 (low byte=5)
   0x024003e7, // PC=0x00000020: jalr x7,x0,0x24 ; x7 = pc+4, jump to 0x24
+
+  // 0x12345678, //invalid test
+
   0x00100073,   //EBREAK
   0x00c00067, // PC=0x00000024: jalr x0,x0,0xc  ; jump to 0x0c (form loop)  EBREAK
 };
 
-bool load_hex_program(const char *path) 
+extern "C" bool load_hex_program(const char *path) 
 {
   FILE *fp = fopen(path, "r");
   if (!fp) 
@@ -139,43 +143,51 @@ bool load_hex_program(const char *path)
   return true;
 }
 
-uint32_t pc_read(uint32_t addr)
+extern "C" uint32_t pc_read(uint32_t addr)
 {
   uint32_t index;
-  if (addr >= PC_BASE) {
+  // 1) 把取指地址映射成“按 4 字节对齐的指令下标 index”
+  //    - 当 addr 在 PC_BASE 以上，说明它是映射到 pmem 高地址区的 PC，先减基址再 /4
+  //    - 否则按低地址直接 /4（兼容你当前调试阶段的低地址访问）
+  if (addr >= PC_BASE) 
+  {
     index = (addr - PC_BASE) >> 2;
-  } else {
+  } 
+  else 
+  {
     index = addr >> 2;
   }
-  if (index < dynamic_pc_inst_size)
+  
+  // 2) 优先从“动态加载程序”取指（load_hex_program 成功后填充）
+  //    dynamic_pc_inst_size 表示当前已分配/可访问的动态指令区大小
+  if (index < dynamic_pc_inst_size) //是否落在范围内 0的话就加载default程序
   {
     return dynamic_pc_inst[index];
   }
+
+  // 3) 若没有动态程序（或超出动态区），回退到内置 default_pc_inst
+  //    这就是你不传镜像时仍能跑起来的原因
   if (index < sizeof(default_pc_inst) / sizeof(default_pc_inst[0]))
   {
     return default_pc_inst[index];
   }
+
+  // 4) 两个区域都越界则返回 0（等价于取到空指令/非法指令，由上层处理）
   return 0;
 }
 
-extern "C" void npc_ebreak(int code) 
+extern "C" void npc_ebreak(int code) //连接sim bridge
 {
-  printf("DPI-C: ebreak at PC=0x%08x\n", code);
-
-  if(code == 0)
-  {
-    printf("NPC: GOOD TRAP(exit code = 0)\n");
-    exit(0);
-  }
-  else
-  {
-    printf("NPC: BAD TRAP (exit code = %d)\n", code);
-    exit(1);
-  }
-
+  printf("DPI-C: ebreak, a0 = %d\n", code);//code 就是a0 中的值
+  npc_sim_mark_halt(code);//调用触发ebreak
 }
 
-void init_pmem(size_t bytes) 
+extern "C" void npc_invalid_inst()
+{
+  npc_sim_mark_abort();
+}
+
+extern "C" void init_pmem(size_t bytes) 
 {
   size_t words = bytes; 
   if (words == 0) words = 1;
@@ -298,7 +310,6 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
   printf("pmem_write_u8 addr=0x%08x data=0x%02x\n", addr, data);
   fflush(stdout);
 }
-
 
 
 

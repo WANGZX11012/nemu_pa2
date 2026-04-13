@@ -4,6 +4,7 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+// 计算字符串长度；参数 s 是以 '\0' 结尾的字符串起始地址。
 size_t strlen(const char *s) 
 {
   // panic("Not implemented");
@@ -17,6 +18,7 @@ size_t strlen(const char *s)
   return n;
 }
 
+// 复制字符串 src 到 dst；参数 dst 是目标缓冲区，src 是源字符串。
 char *strcpy(char *dst, const char *src) 
 {
   // panic("Not implemented");
@@ -35,6 +37,7 @@ char *strcpy(char *dst, const char *src)
   return ret;
 }
 
+// 最多复制 n 个字符到 dst；参数 dst 是目标缓冲区，src 是源字符串，n 是复制上限。
 char *strncpy(char *dst, const char *src, size_t n) //n >= s0
 {
   panic_on(dst == NULL || src == NULL, "strncpy: NULL pointer");
@@ -52,6 +55,7 @@ char *strncpy(char *dst, const char *src, size_t n) //n >= s0
   return ret;
 }
 
+// 将 src 追加到 dst 末尾；参数 dst 是目标字符串，src 是待追加字符串。
 char *strcat(char *dst, const char *src) //把src 追加到 dst
 {
   // panic("Not implemented");
@@ -67,6 +71,7 @@ char *strcat(char *dst, const char *src) //把src 追加到 dst
   
 }
 
+// 按字典序比较两个字符串；参数 s1 和 s2 是待比较的两个字符串。
 int strcmp(const char *s1, const char *s2) 
 {
   panic_on(s1 == NULL || s2 == NULL, "strcmp: NULL pointer");
@@ -77,6 +82,7 @@ int strcmp(const char *s1, const char *s2)
   return (int)((unsigned char)*s1) - (int)((unsigned char)*s2); //返回0代表相等
 }
 
+// 最多比较前 n 个字符；参数 s1 和 s2 是待比较字符串，n 是比较长度上限。
 int strncmp(const char *s1, const char *s2, size_t n) 
 {
   panic_on(s1 == NULL || s2 == NULL, "strncmp: NULL pointer");
@@ -91,6 +97,7 @@ int strncmp(const char *s1, const char *s2, size_t n)
   return 0;
 }
 
+// 将 s 开始的 n 个字节填充为字节值 c；参数 s 是起始地址，c 是填充值，n 是字节数。
 void *memset(void *s, int c, size_t n) 
 {
   // panic("Not implemented");
@@ -105,6 +112,7 @@ void *memset(void *s, int c, size_t n)
 
 }
 
+// 处理可能重叠的内存搬运；参数 dst 是目标地址，src 是源地址，n 是搬运字节数。
 void *memmove(void *dst, const void *src, size_t n) 
 {
   panic_on(dst == NULL || src == NULL, "memmove: NULL pointer");
@@ -138,6 +146,7 @@ void *memmove(void *dst, const void *src, size_t n)
   return dst;
 }
 
+// 复制 n 个字节且不处理重叠；参数 out 是目标地址，in 是源地址，n 是复制字节数。
 void *memcpy(void *out, const void *in, size_t n) //不考虑从前或从后往前的顺序
 {
   // panic("Not implemented");
@@ -156,6 +165,7 @@ void *memcpy(void *out, const void *in, size_t n) //不考虑从前或从后往�
 
 }
 
+// 比较两段内存的前 n 个字节；参数 s1 和 s2 是待比较地址，n 是比较字节数。
 int memcmp(const void *s1, const void *s2, size_t n) 
 {
   panic_on(s1 == NULL || s2 == NULL, "memcmp: NULL pointer");

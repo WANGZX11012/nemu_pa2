@@ -1,5 +1,6 @@
 #include "mtrace.h"
 #include <memory/paddr.h>
+#include <stdio.h>
 
 void p_mread(paddr_t addr, int len, word_t val) //物理内存读
 {

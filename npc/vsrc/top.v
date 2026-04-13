@@ -30,6 +30,7 @@ module top(
     wire       idu_rs1_en_unused;
     wire       idu_rs2_en_unused;
     wire [2:0] idu_branch_type_unused;
+    wire       idu_invalid;
 
 
 
@@ -83,6 +84,7 @@ module top(
    ,.mem_we        (mem_we)
    ,.mem_width     (mem_width)
    ,.branch_type   (idu_branch_type_unused)
+  ,.invalid       (idu_invalid)
 
     );
 
@@ -177,6 +179,14 @@ module top(
    ,.pc           (pc)
    ,.r_a0         (r_a0)
  
+    );
+
+    dpic_invalid u_dpic_invalid(
+
+    .clk          (clk)
+    ,.reset        (reset)
+   ,.invalid      (idu_invalid)
+
     );
 
   endmodule

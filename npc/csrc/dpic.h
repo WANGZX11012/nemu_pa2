@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <cstddef>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialize program memory from hex file
 bool load_hex_program(const char *path);
 
@@ -14,6 +18,12 @@ void init_pmem(size_t bytes);
 uint32_t pc_read(uint32_t addr);
 
 // DPI-C exposed ebreak handler (implemented in C++)
-extern "C" void npc_ebreak(int code);
+void npc_ebreak(int code);
+// DPI-C exposed invalid inst handler
+void npc_invalid_inst(void); // Ensure this matches the current implementation
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // NPC_DPIC_H

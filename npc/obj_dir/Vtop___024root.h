@@ -34,6 +34,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     CData/*0:0*/ top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_5;
     CData/*0:0*/ top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_7;
     CData/*0:0*/ top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_8;
+    CData/*0:0*/ top__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_9;
     CData/*2:0*/ __Vfunc_top__DOT__u_wbu__DOT__wb_func__1__i_wb_sel;
     CData/*7:0*/ __Vfunc_pmem_read_u8__4__Vfuncout;
     CData/*6:0*/ __Vtableidx1;

@@ -22,8 +22,6 @@ module dpic_ebreak(
       $display("PC is 0x%08x",pc);
       npc_ebreak(r_a0);
     end
-
-
   end
 
 endmodule

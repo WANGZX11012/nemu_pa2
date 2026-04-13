@@ -1,5 +1,6 @@
 #include <am.h>
-#include <stdio.h>
+#include <klib.h>
+//#include <stdio.h>
 #include <klib-macros.h>
 
 #define FPS 30

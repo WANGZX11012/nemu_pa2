@@ -61,7 +61,8 @@ void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
   stat->count = count;
 }
 
-void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
+void __am_audio_play(AM_AUDIO_PLAY_T *ctl) 
+{
   int len = ctl->buf.end - ctl->buf.start;
   audio_write(ctl->buf.start, len);
 }

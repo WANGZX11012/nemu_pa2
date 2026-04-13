@@ -24,6 +24,7 @@ static void __am_uart_config(AM_UART_CONFIG_T *cfg)   { cfg->present = false; }
 static void __am_net_config (AM_NET_CONFIG_T *cfg)    { cfg->present = false; }
 
 typedef void (*handler_t)(void *buf);
+//访问哪个寄存器就调用相关的函数s
 static void *lut[128] = {
   [AM_TIMER_CONFIG] = __am_timer_config,
   [AM_TIMER_RTC   ] = __am_timer_rtc,
@@ -47,7 +48,7 @@ static void *lut[128] = {
 static void fail(void *buf) { panic("access nonexist register"); }
 
 bool ioe_init() {
-  for (int i = 0; i < LENGTH(lut); i++)
+  for (int i = 0; i < LENGTH(lut); i++)//?
     if (!lut[i]) lut[i] = fail;
   __am_gpu_init();
   __am_timer_init();

@@ -22,23 +22,25 @@ typedef void(*io_callback_t)(uint32_t, int, bool);
 uint8_t* new_space(int size);
 
 typedef struct {
-  const char *name;
+  const char *name;     //设备名字 例如serial timer
   // we treat ioaddr_t as paddr_t here
-  paddr_t low;
-  paddr_t high;
-  void *space;
-  io_callback_t callback;
+  paddr_t low;          //设备占用地址的起点
+  paddr_t high;         //占用地址终点
+  void *space;          //给设备分一块内存
+  io_callback_t callback; //当 CPU 读/写这个设备时，要不要顺便调用一个函数，让设备做额外动作
 } IOMap;
 
-static inline bool map_inside(IOMap *map, paddr_t addr) {
+static inline bool map_inside(IOMap *map, paddr_t addr)//判断地址 是不是落在某个设备里面
+{
   return (addr >= map->low && addr <= map->high);
 }
 
-static inline int find_mapid_by_addr(IOMap *maps, int size, paddr_t addr) {
+static inline int find_mapid_by_addr(IOMap *maps, int size, paddr_t addr) //根据地址找设备
+{
   int i;
   for (i = 0; i < size; i ++) {
     if (map_inside(maps + i, addr)) {
-      difftest_skip_ref();
+      difftest_skip_ref();//这里是设备行为，别严格拿参考实现来比。
       return i;
     }
   }

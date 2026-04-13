@@ -63,7 +63,8 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 }
 
-static void exec_once(Decode *s, vaddr_t pc) {  //s是译码后的指令
+static void exec_once(Decode *s, vaddr_t pc) 
+{  //s是译码后的指令
   s->pc = pc;
   s->snpc = pc;     // 默认顺序下一条pc
   isa_exec_once(s); // ISA层执行一条指令
