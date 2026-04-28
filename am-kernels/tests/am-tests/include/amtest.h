@@ -6,7 +6,9 @@
 #include <klib-macros.h>
 
 #define IOE ({ ioe_init();  })
-#define CTE(h) ({ Context *h(Event, Context *); cte_init(h); })
+#define CTE(h) ({ Context *h(Event, Context *); cte_init(h); })//被展开为cte_init(simple_trap);
+// /AM 先记住：“以后有异常/中断，就把事件交给 simple_trap 处理”。
+
 #define VME(f1, f2) ({ void *f1(int); void f2(void *); vme_init(f1, f2); })
 #define MPE ({ mpe_init(entry); })
 

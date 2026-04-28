@@ -9,6 +9,13 @@ void init_proc(void);
 
 int main() {
   extern const char logo[];
+  /* Call chain:
+   *  nanos-lite/src/main.c: printf("%s", logo)
+   *    -> abstract-machine/klib/src/stdio.c: printf -> vsprintf
+   *       -> outputs formatted bytes one-by-one via putch(ch)
+   *    -> platform AM implementation (e.g. abstract-machine/am/src/platform/nemu/trm.c): putch(ch)
+   *       -> on NEMU this maps to outb(SERIAL_PORT, ch) which writes to MMIO serial
+   */
   printf("%s", logo);
   Log("'Hello World!' from Nanos-lite");
   Log("Build time: %s, %s", __TIME__, __DATE__);
@@ -20,7 +27,7 @@ int main() {
   init_ramdisk();
 
 #ifdef HAS_CTE
-  init_irq();
+  init_irq();//初始化上下文/异常处理
 #endif
 
   init_fs();

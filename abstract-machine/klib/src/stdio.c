@@ -122,7 +122,13 @@ int printf(const char *fmt, ...)
   va_start(ap, fmt);
   int ret = vsprintf(buf, fmt, ap);
   va_end(ap);
-
+  /* Behavior:
+   * - format the string into `buf` via `vsprintf`
+   * - then output each byte by calling `putch(ch)`
+   * This is the link between libc-style printf and the platform output.
+   * Call chain (simplified):
+   *   printf -> vsprintf -> for each char: putch(ch)
+   */
   for (int i = 0; i < ret; i++) 
   {
     putch(buf[i]);

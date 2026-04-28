@@ -45,6 +45,11 @@ extern "C" {
 
 // ----------------------- TRM: Turing Machine -----------------------
 extern   Area        heap;
+/* `putch` is the abstract-machine character output primitive.
+ * High-level output (printf) eventually calls this to emit bytes.
+ * Platform-specific implementations map `putch` to real or simulated hardware
+ * (e.g. on NEMU, `putch` -> outb(SERIAL_PORT, ch)).
+ */
 void     putch       (char ch);
 void     halt        (int code) __attribute__((__noreturn__));
 

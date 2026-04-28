@@ -27,11 +27,18 @@ void isa_reg_display()
 {
   printf(ANSI_FMT("[Register status]", ANSI_BG_GREEN) "\n");
   printf("PC is 0x%08x\n",cpu.pc);  //pc寄存器！！
+
   printf("Reg  Idx Hex\t\t Dec\n");  // 标题：Reg(4), Idx(4), Hex(12), Dec(>10)
   for(int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); i++) 
   {
     printf("%-4s %-3d 0x%08x %10d\n", reg_name(i), i, gpr(i), gpr(i));//-4s -左对齐总共4格右边补空格
   }
+  
+  //打印CSR
+
+  printf("mepc=0x%08x mcause=0x%08x mstatus=0x%08x mtvec=0x%08x\n",
+      (uint32_t)cpu.csr.mepc, (uint32_t)cpu.csr.mcause,
+      (uint32_t)cpu.csr.mstatus, (uint32_t)cpu.csr.mtvec);
   printf("\n");
  
 }
@@ -52,6 +59,26 @@ word_t isa_reg_str2val(const char *s, bool *success)
   {
     if(success) *success = true;
     return cpu.pc;
+  }
+
+  if (strcmp("mepc", s) == 0) {
+    if (success) *success = true;
+    return cpu.csr.mepc;
+  }
+
+  if (strcmp("mcause", s) == 0) {
+    if (success) *success = true;
+    return cpu.csr.mcause;
+  }
+
+  if (strcmp("mstatus", s) == 0) {
+    if (success) *success = true;
+    return cpu.csr.mstatus;
+  }
+
+  if (strcmp("mtvec", s) == 0) {
+    if (success) *success = true;
+    return cpu.csr.mtvec;
   }
 
 

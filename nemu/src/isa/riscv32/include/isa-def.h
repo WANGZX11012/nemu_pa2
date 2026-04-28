@@ -18,9 +18,34 @@
 
 #include <common.h>
 
+//新增的位操作函数
+static inline word_t set_bit(word_t x, int n, int v) 
+{
+  return v ? (x | (1u << n)) : (x & ~(1u << n));
+}
+
+static inline int get_bit(word_t x, int n) 
+{
+  return (x >> n) & 1u;
+}
+
+
+typedef struct 
+{
+  word_t mcause; // 异常/中断原因 中断(1) / 异常(0)低位：具体编号（如 ecall、非法指令、timer irq 等）
+  vaddr_t mepc; //异常返回地址(pc) 异常处理结束后 mret 通常从这里返回
+  word_t mstatus;//机器状态寄存器
+  word_t mtvec;//异常入口地址 如asm trap
+} riscv32_CSRs;
+
+
+
+
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   vaddr_t pc;
+  riscv32_CSRs csr; //adding csr
+
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state); //用来difftest
 
 // decode

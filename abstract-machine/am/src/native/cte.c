@@ -158,7 +158,7 @@ void __am_init_timer_irq() {
 }
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
-  user_handler = handler;
+  user_handler = handler;//handler 是simple_trap
 
   install_signal_handler();
   __am_init_timer_irq();

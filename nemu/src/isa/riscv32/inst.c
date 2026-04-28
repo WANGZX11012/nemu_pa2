@@ -18,6 +18,8 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 #include "ftrace.h"
+#include <isa.h>
+
 
 #define R(i) gpr(i)       // 读/写通用寄存器
 #define Mr vaddr_read     // 读内存
@@ -126,6 +128,24 @@ static word_t my_mulhu(word_t a, word_t b)
   return (word_t)(prod >> 32); 
 }
 
+static word_t *csr_reg(word_t imm)
+{
+  switch (imm)
+  {
+  case 0x341:
+    return &cpu.csr.mepc;
+  case 0x342:
+    return &cpu.csr.mcause;
+  case 0x300:
+    return &cpu.csr.mstatus;
+  case 0x305:
+    return &cpu.csr.mtvec;
+  default:
+    panic("Unknown csr");
+    break;
+  }
+}
+#define CSR(i) (*csr_reg(i))
 
 static int decode_exec(Decode *s) 
 {
@@ -218,12 +238,26 @@ static int decode_exec(Decode *s)
   INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori    , I, R(rd) = src1 | imm );
   INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or     , R, R(rd) = src1 | src2 );
 
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I,  R(rd) = CSR(imm); CSR(imm) = src1);
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, \
+  { word_t old = CSR(imm); R(rd) = old; CSR(imm) = old | src1; });
+
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(11, s->pc);
+  #ifdef  CONFIG_ETRACE
+      printf("[E TRACE] mepc=0x%08x mcause=0x%08x mstatus=0x%08x mtvec=0x%08x\n",
+      (uint32_t)cpu.csr.mepc, (uint32_t)cpu.csr.mcause,
+      (uint32_t)cpu.csr.mstatus, (uint32_t)cpu.csr.mtvec);
+  #endif
+  );
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I, s->dnpc = cpu.csr.mepc;
+  cpu.csr.mstatus = set_bit(cpu.csr.mstatus, 3, get_bit(cpu.csr.mstatus, 7)); //MIE <- MPIE
+  cpu.csr.mstatus = set_bit(cpu.csr.mstatus, 7, 1); //MPIE <- 1
+  //MPP <- 0
+  cpu.csr.mstatus =  cpu.csr.mstatus & ~(3u << 11);
+  );
 
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));    //匹配所有未匹配的指令 优先级放到最后
   //TODO 添加更多指令
-
-
-
 
   INSTPAT_END();// 结束匹配(命中后会跳到这里) 然后执行$0变成0 后return
 

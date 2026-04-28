@@ -39,6 +39,12 @@ static debug_module_config_t difftest_dm_config = {
 struct diff_context_t {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   word_t pc;
+  // 以下4个字段为本次新增: 让 ref <-> dut 的寄存器拷贝包含关键CSR
+  // 这样 `isa_difftest_checkregs()` 才能安全比较异常相关状态
+  word_t csr_mcause;
+  word_t csr_mepc;
+  word_t csr_mstatus;
+  word_t csr_mtvec;
 };
 
 static sim_t* s = NULL;
@@ -60,6 +66,11 @@ void sim_t::diff_get_regs(void* diff_context) {
     ctx->gpr[i] = state->XPR[i];
   }
   ctx->pc = state->pc;
+  // 新增: 从 Spike(ref) 侧读取 CSR, 回传给 NEMU 的 `ref_r`
+  ctx->csr_mcause = state->mcause->read();
+  ctx->csr_mepc = state->mepc->read();
+  ctx->csr_mstatus = state->mstatus->read();
+  ctx->csr_mtvec = state->mtvec->read();
 }
 
 void sim_t::diff_set_regs(void* diff_context) {
@@ -68,6 +79,12 @@ void sim_t::diff_set_regs(void* diff_context) {
     state->XPR.write(i, (sword_t)ctx->gpr[i]);
   }
   state->pc = ctx->pc;
+  // 新增: 当 `DIFFTEST_TO_REF` 时, 把 DUT 的 CSR 写回 Spike(ref)
+  // 用于 attach/skip_ref 等路径保持 ref 与 dut 上下文一致
+  state->mcause->write(ctx->csr_mcause);
+  state->mepc->write(ctx->csr_mepc);
+  state->mstatus->write(ctx->csr_mstatus);
+  state->mtvec->write(ctx->csr_mtvec);
 }
 
 void sim_t::diff_memcpy(reg_t dest, void* src, size_t n) {

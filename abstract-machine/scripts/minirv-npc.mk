@@ -2,6 +2,7 @@ include $(AM_HOME)/scripts/isa/riscv.mk
 include $(AM_HOME)/scripts/platform/npc.mk
 
 export PATH := $(PATH):$(abspath $(AM_HOME)/tools/minirv)
+##强制转换编译器
 CC = minirv-gcc
 AS = minirv-gcc
 CXX = minirv-g++

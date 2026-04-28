@@ -1,7 +1,10 @@
 #include <amtest.h>
 
-Context *simple_trap(Event ev, Context *ctx) {
-  switch(ev.event) {
+Context *simple_trap(Event ev, Context *ctx) //接受一个event 触发原因 和当时寄存器的状态Context
+{
+  printf("[trap] ev=%d ", ev.event);
+  switch(ev.event) 
+  {
     case EVENT_IRQ_TIMER:
       putch('t'); break;
     case EVENT_IRQ_IODEV:
@@ -19,8 +22,9 @@ void hello_intr() {
   printf("  t = timer, d = device, y = yield\n");
   io_read(AM_INPUT_CONFIG);
   iset(1);
-  while (1) {
-    for (volatile int i = 0; i < 10000000; i++) ;
+  for (int cnt = 0; cnt < 100; cnt++) //取消了while(1)无限循环
+  {
+    for (volatile int i = 0; i < 100000; i++);
     yield();
   }
 }
