@@ -53,7 +53,7 @@ void npc_exec_once(void)
   char *p = s.logbuf;
   p += snprintf(p, sizeof(s.logbuf), FMT_WORD ":", s.pc);
   int ilen = 4;
-  uint8_t *inst = (uint8_t *)&this_inst;
+  const uint8_t *inst = (const uint8_t *)&this_inst;
   for (int i = ilen - 1; i >= 0; i --) {
     p += snprintf(p, 4, " %02x", inst[i]);
   }

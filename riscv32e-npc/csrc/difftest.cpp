@@ -47,6 +47,12 @@ static void (*ref_difftest_raise_intr)(uint64_t NO) = nullptr;
 // ── 物理内存基址 (与 NEMU 的 CONFIG_MBASE 一致) ─────────────────────────
 static const uint32_t MEM_BASE = 0x80000000u;
 
+#ifndef ENABLE_DIFFTEST
+#define ENABLE_DIFFTEST 1
+#endif
+
+#if ENABLE_DIFFTEST
+
 // ============================================================================
 // load_ref_so — 动态加载 REF 共享库, 解析所有 API 符号
 // ============================================================================
@@ -62,22 +68,32 @@ static void load_ref_so()
     abort();
   }
 
-  // 解析 5 个必需 API (difftest_load_image 不再使用)
-  ref_difftest_memcpy      = (void (*)(uint32_t, void*, size_t, bool))dlsym(ref_handle, "difftest_memcpy");
-  ref_difftest_regcpy      = (void (*)(void*, bool))dlsym(ref_handle, "difftest_regcpy");
-  ref_difftest_exec        = (void (*)(uint64_t))dlsym(ref_handle, "difftest_exec");
-  ref_difftest_raise_intr  = (void (*)(uint64_t))dlsym(ref_handle, "difftest_raise_intr");
-  auto ref_difftest_init   = (void (*)(int))dlsym(ref_handle, "difftest_init");
+    // 解析 5 个必需 API (difftest_load_image 不再使用)
+    // 清除之前可能的 dlerror 状态
+    dlerror();
+    ref_difftest_memcpy      = reinterpret_cast< void (*)(uint32_t, void*, size_t, bool) > (
+      dlsym(ref_handle, "difftest_memcpy"));
+    ref_difftest_regcpy      = reinterpret_cast< void (*)(void*, bool) > (
+      dlsym(ref_handle, "difftest_regcpy"));
+    ref_difftest_exec        = reinterpret_cast< void (*)(uint64_t) > (
+      dlsym(ref_handle, "difftest_exec"));
+    ref_difftest_raise_intr  = reinterpret_cast< void (*)(uint64_t) > (
+      dlsym(ref_handle, "difftest_raise_intr"));
+    using ref_init_t = void (*)(int);
+    ref_init_t ref_difftest_init = reinterpret_cast<ref_init_t>(
+      dlsym(ref_handle, "difftest_init"));
 
-  // 断言所有 API 都成功解析 (任何为 nullptr 都是 .so 版本不匹配)
-  assert(ref_difftest_memcpy     != nullptr);
-  assert(ref_difftest_regcpy     != nullptr);
-  assert(ref_difftest_exec       != nullptr);
-  assert(ref_difftest_raise_intr != nullptr);
-  assert(ref_difftest_init       != nullptr);
+    // 使用 dlerror 检查并打印更详细的错误信息（assert 在 release 可能被禁用）
+    const char *dlsym_err = dlerror();
+    if (!ref_difftest_memcpy || !ref_difftest_regcpy || !ref_difftest_exec ||
+      !ref_difftest_raise_intr || !ref_difftest_init || dlsym_err) {
+    std::fprintf(stderr, "dlsym error: %s\n",
+           dlsym_err ? dlsym_err : "missing symbol in ref.so");
+    std::abort();
+    }
 
-  // 初始化 REF: 分配内存, 设置 ISA, 标记为 RUNNING
-  ref_difftest_init(1234);
+    // 初始化 REF: 分配内存, 设置 ISA, 标记为 RUNNING
+    ref_difftest_init(1234);
   // port=1234 是历史遗留参数 (预留给 socket difftest), 当前不使用
 }
 
@@ -156,3 +172,14 @@ bool difftest_step(uint32_t dut_pc, const uint32_t *dut_gpr)
 
   return !diff_failed;
 }
+#else
+
+// Stubs when difftest is disabled at build time
+void difftest_init(uint32_t dut_pc) { (void)dut_pc; }
+
+bool difftest_step(uint32_t dut_pc, const uint32_t *dut_gpr) {
+  (void)dut_pc; (void)dut_gpr;
+  return true; // always succeed when difftest disabled
+}
+
+#endif

@@ -12,7 +12,11 @@ REF_SO = $(OBJ_DIR)/ref.so
 VERILATOR_FLAGS = --cc --exe --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
 NPC_NEMU_INC = $(abspath ./npc-nemu/include)
 NPC_CSRCS_INC = $(abspath ./csrc)
-VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC)"
+# Enable/disable difftest at build time (0 = disabled, 1 = enabled)
+ENABLE_DIFFTEST ?= 1
+
+# Pass include paths and feature macros to verilator's -CFLAGS
+VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)"
 
 all: build
 

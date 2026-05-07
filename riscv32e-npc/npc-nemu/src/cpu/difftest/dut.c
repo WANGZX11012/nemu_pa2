@@ -23,7 +23,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 #ifdef CONFIG_DIFFTEST
 
-static bool checkregs(DifftestCPUState *ref, vaddr_t pc, vaddr_t inst) {
+static bool checkregs(const DifftestCPUState *ref, vaddr_t pc, vaddr_t inst) {
   if (!difftest_check_reg("pc", pc, npc_cpu.pc, inst, ref->pc, npc_cpu.pc)) {
     npc_set_state(NPC_ABORT, pc, -1);
     npc_isa_reg_display();
@@ -43,6 +43,10 @@ static bool checkregs(DifftestCPUState *ref, vaddr_t pc, vaddr_t inst) {
   return true;
 }
 
+// NPC 架构中不需要这些函数（不同于 NEMU）：
+// - difftest_skip_ref/skip_dut：NPC 不需要跳过指令比对
+// - difftest_attach/detach：NPC 状态初始化在 difftest_init() 中完成
+/*
 void difftest_skip_ref() {}
 
 void difftest_skip_dut(int nr_ref, int nr_dut) {
@@ -53,7 +57,10 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
 void difftest_attach() {}
 
 void difftest_detach() {}
+*/
 
+// cppcheck-suppress unusedFunction
+__attribute__((used))
 void init_difftest(char *ref_so_file, char *img_file, long img_size, int port) {
   (void)img_size;
   (void)port;

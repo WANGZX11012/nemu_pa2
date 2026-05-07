@@ -210,7 +210,6 @@ extern "C" void init_pmem(size_t bytes) //pmem初始化
 extern "C" uint32_t pmem_read_u32(uint32_t raddr) 
 {
   uint32_t index;
-  uint32_t orig = raddr;
   if (raddr < PC_BASE)
   {
     raddr = (raddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -231,7 +230,6 @@ extern "C" uint8_t pmem_read_u8(uint32_t raddr)
 {
   uint32_t index;
   uint32_t byte_off;
-  uint32_t orig = raddr;
   if (raddr < PC_BASE)
   {
     raddr = (raddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -255,7 +253,6 @@ extern "C" uint8_t pmem_read_u8(uint32_t raddr)
 
 extern "C" uint16_t pmem_read_u16(uint32_t raddr) //半字的读
 {
-  uint32_t orig = raddr;
   if (raddr < PC_BASE)
   {
     raddr = (raddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -298,7 +295,6 @@ extern "C" uint16_t pmem_read_u16(uint32_t raddr) //半字的读
 extern "C" void pmem_write_u32(uint32_t waddr, uint32_t wdata) 
 {
   uint32_t index;
-  uint32_t orig = waddr;
   if (waddr < PC_BASE)
   {
     waddr = (waddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -319,7 +315,6 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
 {
   uint32_t index;
   uint32_t byte_off;
-  uint32_t orig = addr;
   if (addr < PC_BASE)
   {
     addr = (addr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -344,7 +339,6 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
 extern "C" void pmem_write_u16(uint32_t addr, uint16_t data) 
 {
   uint32_t index;
-  uint32_t orig = addr;
   if (addr < PC_BASE)
   {
     addr = (addr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff

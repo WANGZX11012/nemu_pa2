@@ -104,7 +104,7 @@ static struct
 static int cmd_help(char *args) 
 {
   /* extract the first argument */
-  char *arg = strtok(NULL, " ");// NULL是继续分割输入的字符 前面已经通过分割得到命令的token
+  const char *arg = (const char *)strtok(NULL, " ");// NULL是继续分割输入的字符 前面已经通过分割得到命令的token
                                 // 如help c这里就会让arg得到c
   int i;
 
@@ -134,7 +134,7 @@ static int cmd_help(char *args)
 
 static int cmd_si(char *args)
 {
-  char *arg = strtok(NULL, " ");
+  const char *arg = (const char *)strtok(NULL, " ");
   int num = 1;
   if (arg != NULL) 
   {
@@ -159,7 +159,7 @@ static int cmd_si(char *args)
 
 static int cmd_d(char *args)
 {
-  char *arg = strtok(NULL, " ");
+  const char *arg = (const char *)strtok(NULL, " ");
   int n = 10;  /* default: show 10 instructions */
   if (arg != NULL) {
     char *endptr;
@@ -365,6 +365,8 @@ static int cmd_d(char *args)
 
 
 // 设置批处理模式
+// cppcheck-suppress unusedFunction: 通过条件编译被调用 (CONFIG_TARGET_AM)
+__attribute__((used))
 void npc_sdb_set_batch_mode() 
 {
   is_batch_mode = true;
@@ -389,7 +391,7 @@ void npc_sdb_mainloop()
   // 交互模式：循环读取输入
   for (char *str; (str = rl_gets()) != NULL; ) //相当于while 无限读输入直到null或eof错误
   {
-    char *str_end = str + strlen(str); // 输入字符串末尾  str代表开头
+    const char *str_end = str + strlen(str); // 输入字符串末尾  str代表开头
 
     /* extract the first token as the command */
     char *cmd = strtok(str, " "); //以空格分割得到第一个token
@@ -422,7 +424,9 @@ void npc_sdb_mainloop()
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }// 未找到命令
   }
 }
-
+// __attribute__((used)): 通过 monitor.c 初始化调用（CONFIG_TARGET_AM）
+// cppcheck-suppress unusedFunction: 通过条件编译被调用
+__attribute__((used))
 void npc_init_sdb() 
 //do nothing
 {

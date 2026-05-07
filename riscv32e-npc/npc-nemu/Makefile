@@ -111,9 +111,6 @@ NPC_CPP_OBJS := \
   $(BUILD_DIR)/dpic.o \
   $(BUILD_DIR)/sim_bridge.o
 
-REF_SO := $(BUILD_DIR)/ref.so
-REF_CFLAGS := -O2 -g -Wall -Wextra -fPIC
-
 ## 链接时需要的 Verilator 侧对象：
 ## - Vtop__ALL.a：你的 RTL 转出来的核心模型库
 ## - verilated*.cpp：Verilator 运行时支持（时间轮、trace、线程等）
@@ -125,9 +122,6 @@ VERILATOR_OBJS := \
 
 ## 默认目标：直接构建最终二进制
 all: $(BIN)
-ifeq ($(CONFIG_DIFFTEST),y)
-all: $(REF_SO)
-endif
 
 ## 如果 build/ 不存在就创建（mkdir -p 可重复执行）
 $(BUILD_DIR):
@@ -191,9 +185,6 @@ $(BUILD_DIR)/dpic.o: $(NPC_ROOT)/csrc/dpic.cpp | $(BUILD_DIR)
 
 $(BUILD_DIR)/sim_bridge.o: $(NPC_ROOT)/csrc/sim_bridge.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(REF_SO): $(NPC_NEMU_ROOT)/difftest/ref.c | $(BUILD_DIR)
-	$(CC) $(REF_CFLAGS) $(INCLUDES) -shared $< -o $@
 
 ## 最终链接：
 ## 把 npc-nemu 自己的对象 + bridge 对象 + Verilator 模型/运行时 一次性拼成可执行文件

@@ -23,12 +23,17 @@ static uint64_t get_time_internal() {
   return us;
 }
 
+// __attribute__((used)): 公开 API，可能被外部使用
+// cppcheck-suppress unusedFunction
+__attribute__((used))
 uint64_t npc_get_time() {
   if (boot_time == 0) boot_time = get_time_internal();
   uint64_t now = get_time_internal();
   return now - boot_time;
 }
 
+// cppcheck-suppress unusedFunction: 通过条件编译被调用 (CONFIG_TARGET_AM)
+__attribute__((used))
 void npc_init_rand() 
 {
   srand(get_time_internal());

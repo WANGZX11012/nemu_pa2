@@ -24,6 +24,8 @@ static void (*cs_free_dl)(cs_insn *insn, size_t count);
 
 static csh handle;
 
+// cppcheck-suppress unusedFunction: 通过条件编译被调用 (CONFIG_ITRACE)
+__attribute__((used))
 void init_disasm(void)
 {
   void *dl_handle;
