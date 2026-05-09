@@ -40,7 +40,7 @@ f(30) f(31)
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
-  addi sp, sp, -CONTEXT_SIZE
+  addi sp, sp, -CONTEXT_SIZE  #给Context分配栈空间
 
   MAP(REGS, PUSH)
 
@@ -67,5 +67,5 @@ __am_asm_trap:
 
   MAP(REGS, POP)
 
-  addi sp, sp, CONTEXT_SIZE
+  addi sp, sp, CONTEXT_SIZE #释放栈空间
   mret
