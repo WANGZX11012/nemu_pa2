@@ -117,7 +117,7 @@ int sprintf(char *out, const char *fmt, ...)
 
 int printf(const char *fmt, ...) 
 {
-  char buf[1024];
+  char buf[4096];
   va_list ap;
   va_start(ap, fmt);
   int ret = vsprintf(buf, fmt, ap);
