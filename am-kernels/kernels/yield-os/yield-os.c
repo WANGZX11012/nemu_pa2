@@ -29,7 +29,7 @@ static void f(void *arg)
   while (i < 100) 
   {
     putch("?AB"[(uintptr_t)arg > 2 ? 0 : (uintptr_t)arg]);
-    for (int volatile i = 0; i < 100000; i++) ; //“故意浪费一点时间，然后主动让出 CPU”，用来让你更容易观察到 A/B 交替输出、并触发上下文切换。
+    for (int volatile i = 0; i < 100; i++) ; //“故意浪费一点时间，然后主动让出 CPU”，用来让你更容易观察到 A/B 交替输出、并触发上下文切换。
     yield();
     i++;
   }
