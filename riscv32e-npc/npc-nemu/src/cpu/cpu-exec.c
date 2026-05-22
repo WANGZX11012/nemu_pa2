@@ -91,7 +91,7 @@ void npc_exec_once(void)
   if (g_print_step) puts(s.logbuf);
 #endif
 
-  printf(ANSI_FMT("PC:0x%08x inst:0x%08x\n", ANSI_FG_GREEN), this_pc, this_inst);
+  // printf(ANSI_FMT("PC:0x%08x inst:0x%08x\n", ANSI_FG_GREEN), this_pc, this_inst); //注释掉打印指令
 
   if (g_print_step) 
   {

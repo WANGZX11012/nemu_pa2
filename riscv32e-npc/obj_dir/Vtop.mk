@@ -37,7 +37,7 @@ VM_PREFIX = Vtop
 VM_MODPREFIX = Vtop
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-  -I/home/wang/ysyx-workbench/riscv32e-npc/npc-nemu/include -I/home/wang/ysyx-workbench/riscv32e-npc/csrc -DENABLE_DIFFTEST=1 \
+  -I/home/wang/ysyx-workbench/riscv32e-npc/npc-nemu/include -I/home/wang/ysyx-workbench/riscv32e-npc/csrc -DENABLE_DIFFTEST=0 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \

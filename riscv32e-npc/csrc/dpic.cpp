@@ -321,6 +321,13 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
     // printf("pmem_write_u8 mapped 0x%08x -> 0x%08x\n", orig, addr);
   }
 
+  if(addr == 0xa00003f8)
+  {
+    putchar(data);
+    fflush(stdout);
+    return; //中途返回
+  }
+
   uint32_t off = (addr >= PC_BASE) ? (addr - PC_BASE) : addr;
   index = off >> 2;
   byte_off = off & 3u;
@@ -360,7 +367,7 @@ extern "C" void pmem_write_u16(uint32_t addr, uint16_t data)
     uint32_t word = pmem_words[index];
     uint32_t mask = ~(0xffffu << (byte_off * 8));
     pmem_words[index] = (word & mask) | (((uint32_t)data) << (byte_off * 8));
-    printf("pmem_write_u16 addr=0x%08x data=0x%04x\n", addr, data);
+    // printf("pmem_write_u16 addr=0x%08x data=0x%04x\n", addr, data);
     fflush(stdout);
     return;
   } 

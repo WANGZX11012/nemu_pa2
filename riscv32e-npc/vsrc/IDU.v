@@ -1,7 +1,7 @@
 `define I_LEN 32
 `define REG_WIDTH 5
 // 引入统一控制信号编码：mem_width / wb_sel
-`include "vsrc/ctrl_defs.vh"
+`include "ctrl_defs.vh"
 
 module IDU (
   input  [`I_LEN-1:0]       inst,
@@ -28,7 +28,10 @@ module IDU (
   output [2:0]              wb_sel,
   output [1:0]              npc_sel,
   output [2:0]              branch_type,    //BNE BLT等等的判断
-  output                    invalid
+  output                    invalid,
+
+  output [11:0]             csr_idx,
+  output                    csr_wen
 
 );
 
@@ -41,7 +44,12 @@ localparam IMM_J = 3'b100;
   wire [6:0] opcode = inst[6:0];
   wire [2:0] funct3 = inst[14:12];
   wire [6:0] funct7 = inst[31:25];
+
+  //CSR index
+  assign csr_idx = inst[31:20];
   
+
+
   reg [2:0] imm_type;// 根据指令类型生成的立即数类型控制
 
   //具体指令的判断译码（组合逻辑中生成 reg 标志位）指令的注册
@@ -65,8 +73,9 @@ localparam IMM_J = 3'b100;
   reg is_lh;
   reg is_lhu;
 
-  //ebreak
+  //system
   reg is_ebreak;
+  reg is_csrrs;
 
   //store相关
   reg is_sb;
@@ -139,6 +148,8 @@ localparam IMM_J = 3'b100;
     is_lhu    = 1'b0;
     is_lb     = 1'b0;
 
+    is_csrrs  = 1'b0;
+
 
 
     case (opcode)
@@ -170,6 +181,7 @@ localparam IMM_J = 3'b100;
           3'b000: begin is_sb = 1'b1; end
           3'b010: begin is_sw = 1'b1; end
           3'b001: begin is_sh = 1'b1; end
+          default: ;
         endcase
       end
 
@@ -181,6 +193,7 @@ localparam IMM_J = 3'b100;
           3'b100: begin is_lbu = 1'b1; end
           3'b001: begin is_lh  = 1'b1; end
           3'b101: begin is_lhu = 1'b1; end
+          default: ;
         endcase
       end
 
@@ -203,6 +216,7 @@ localparam IMM_J = 3'b100;
                   end
 
           3'b001: if (funct7 == 7'b0000000) begin is_sll = 1'b1; end //sll
+          default: ;
         endcase
       end
 
@@ -219,6 +233,7 @@ localparam IMM_J = 3'b100;
                     if (funct7 == 7'b0000000)  is_srli = 1'b1; //srli
                   end 
           3'b111: begin is_andi = 1'b1; end //andi
+          default: ;
         endcase
       end
 
@@ -231,15 +246,23 @@ localparam IMM_J = 3'b100;
           3'b111: is_bgeu= 1'b1;
           3'b100: is_blt = 1'b1;
           3'b110: is_bltu= 1'b1;
+          default: ;
         endcase
       end
 
       7'b1110011://system 相关
+      begin
         if(inst == 32'h00100073) 
         begin
           is_ebreak = 1'b1;
         end
 
+        if ((funct3 == 3'b010) && (rs1 == 5'b0) &&
+            ((csr_idx == 12'hb00) || (csr_idx == 12'hb80)))
+        begin
+          is_csrrs = 1'b1;
+        end
+      end
       default: ;
     endcase
 
@@ -259,14 +282,16 @@ localparam IMM_J = 3'b100;
   assign rs1_en = is_addi | is_jalr | is_add | is_lw | is_lbu | is_sw | is_sb | is_xor | 
                   is_xori | is_sub | is_or | is_slti | is_sltiu | is_bne | is_beq | is_bge | 
                   is_bgeu | is_blt  | is_bltu | is_lh | is_lhu | is_lb | is_sltu | is_slt | 
-                  is_sh | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli;
+                  is_sh | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
+                  is_csrrs ;
 
   assign rs2_en = is_add | is_sw | is_sb | is_xor | is_sub | is_or | is_bne | is_beq | 
                   is_bge | is_bgeu |  is_blt | is_bltu | is_sltu | is_slt | is_sh | is_sra | is_sll | is_srl | is_and; 
 
   assign rd_en  = is_addi | is_jal | is_jalr | is_add | is_lui | is_lbu | is_lw | is_auipc | 
                   is_xor | is_xori | is_sub | is_or | is_slti | is_sltiu | is_lh | is_lhu | is_lb | 
-                  is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli ;//寄存器写使能逻辑
+                  is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
+                  is_csrrs;  //寄存器写使能逻辑
                   
   
   /*alu related*/
@@ -362,6 +387,7 @@ localparam IMM_J = 3'b100;
             alu_src2_imm = 1'b1;
             alu_op = `ALU_ADD;
           end
+          default: ;
         endcase
       end
 
@@ -408,7 +434,7 @@ localparam IMM_J = 3'b100;
                   
                   (is_jal | is_jalr) ? `WB_PC4 :
                   (is_lw | is_lbu | is_lh | is_lhu | is_lb) ? `WB_MEM :
-                  (is_lui ? `WB_IMM : `WB_ALU);
+                  (is_lui) ? `WB_IMM : (is_csrrs) ? `WB_CSR : `WB_ALU;
 
   
   
@@ -427,7 +453,10 @@ localparam IMM_J = 3'b100;
                      is_auipc | is_xor | is_xori | is_sub | is_or | is_slti |
                      is_sltiu | is_sw | is_sb | is_sh | is_ebreak | is_bne | is_bge | 
                      is_bgeu | is_blt | is_bltu | is_beq | is_lh | is_lhu | is_lb | 
-                     is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli);
+                     is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
+                     is_csrrs );
+
+  assign csr_wen = 0;//暂时置为0
 
 
   /*opcode 判断imm 类型*/

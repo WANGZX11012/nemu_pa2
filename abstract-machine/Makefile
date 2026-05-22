@@ -9,7 +9,7 @@ html:
 
 ### Default to create a bare-metal kernel image
 ifeq ($(MAKECMDGOALS),)
-   MAKECMDGOALS  = image
+  MAKECMDGOALS  = image
   .DEFAULT_GOAL = image
 endif
 
@@ -55,10 +55,21 @@ IMAGE_REL = build/$(NAME)-$(ARCH)
 IMAGE     = $(abspath $(IMAGE_REL))
 ARCHIVE   = $(WORK_DIR)/build/$(NAME)-$(ARCH).a
 
+### Ramdisk generator
+ifneq ($(MAKECMDGOALS),archive)
+ifdef diskfilelist
+RAMDISK_SRC = $(WORK_DIR)/build/$(NAME).ramdisk.c
+$(RAMDISK_SRC): $(diskfilelist)
+	python $(AM_HOME)/tools/gen-ramdisk.py $@ $^
+
+SRCS += $(RAMDISK_SRC)
+endif
+endif
+
 ### Collect the files to be linked: object files (`.o`) and libraries (`.a`)
 OBJS      = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 LIBS     := $(sort $(LIBS) am klib) # lazy evaluation ("=") causes infinite recursions
-LINKAGE   = $(OBJS)  # library archives are added by LIB_TEMPLATE below
+LINKAGE  += $(OBJS)  # library archives are added by LIB_TEMPLATE below
 
 ## 3. General Compilation Flags
 
@@ -68,7 +79,6 @@ CC        = $(CROSS_COMPILE)gcc
 CXX       = $(CROSS_COMPILE)g++
 LD        = $(CROSS_COMPILE)ld
 AR        = $(CROSS_COMPILE)ar
-RANLIB    = $(CROSS_COMPILE)ranlib
 OBJDUMP   = $(CROSS_COMPILE)objdump
 OBJCOPY   = $(CROSS_COMPILE)objcopy
 READELF   = $(CROSS_COMPILE)readelf
@@ -117,16 +127,12 @@ $(DST_DIR)/%.o: %.S
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ifeq ($(MAKECMDGOALS),archive)
-
-### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar) 
-##	给静态库 .a 生成/刷新符号索引（archive index）。
+### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
 $(ARCHIVE): $(OBJS)
 	@echo + AR "->" $(shell realpath $@ --relative-to .)
 	@$(AR) rcs $@ $^
-	@$(RANLIB) $@
 else
 # $(1): library name
-
 define LIB_TEMPLATE =
 $$(AM_HOME)/$(1)/build/$(1)-$$(ARCH).a: force
 	@$$(MAKE) -s -C $$(AM_HOME)/$(1) archive

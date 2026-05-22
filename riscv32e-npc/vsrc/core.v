@@ -1,4 +1,4 @@
-`include "vsrc/ctrl_defs.vh"
+`include "ctrl_defs.vh"
 
 module core(
   input         clk,
@@ -22,6 +22,9 @@ module core(
   wire       alu_src2_imm;
   wire       alu_en;
   wire       alu_src1_pc;
+  wire [31:0]csr_data;
+  wire [11:0]csr_idx;
+  wire       csr_wen;
 
   wire [2:0] wb_sel;
   wire [1:0] npc_sel;    // `NPC_PC4:pc+4 `NPC_JALR:jalr `NPC_JAL:jal
@@ -78,7 +81,9 @@ module core(
     .mem_width     (mem_width),
     .mem_signed    (mem_signed),
     .branch_type   (branch_type),
-    .invalid       (idu_invalid)
+    .invalid       (idu_invalid),
+    .csr_idx       (csr_idx),
+    .csr_wen       (csr_wen)
   );
 
   RegisterFile #(
@@ -136,6 +141,7 @@ module core(
     .pc4        (pc4),
     .alu_result (alu_result),
     .mem_data   (rdata),
+    .csr_data   (csr_data),
     .imm        (imm),
     .wb_data    (wb_data)
   );
@@ -152,9 +158,20 @@ module core(
     .pc        (pc)
   );
 
+  CSRFile #(
+    .ADDR_WIDTH    (12)
+  ) u_CSRFile (
+    .clk           (clk),
+    .reset         (reset),
+    .csr_wen       (csr_wen),
+    //不需要读使能
+    .csr_wdata     (32'b0),
+    .csr_idx       (csr_idx),
+    .csr_data      (csr_data)
+  );
+
   assign inst_dbg    = inst_out;
   assign a0_dbg      = r_a0;
   assign invalid_dbg = idu_invalid;
-
 
 endmodule

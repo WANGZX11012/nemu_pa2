@@ -1,4 +1,4 @@
-`include "vsrc/ctrl_defs.vh"
+`include "ctrl_defs.vh"
 
 module NextPC(
   input  [31:0] pc,

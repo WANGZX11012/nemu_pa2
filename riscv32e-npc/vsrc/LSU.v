@@ -1,6 +1,6 @@
 /*DPIC*/
 // 引入统一 mem_width 编码
-`include "vsrc/ctrl_defs.vh"
+`include "ctrl_defs.vh"
 import "DPI-C" function void pmem_write_u32(input int waddr, input int wdata);
 import "DPI-C" function int  pmem_read_u32(input int raddr);
 

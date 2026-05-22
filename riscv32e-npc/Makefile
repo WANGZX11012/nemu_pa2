@@ -3,24 +3,39 @@ VERILATOR = verilator
 
 VSRCS = $(wildcard vsrc/*.v)  #把 vsrc/ 目录下所有 .v 文件都收集到 VSRCS 变量里。
 CSRCS = $(wildcard csrc/*.cpp)
+VHSRCS = $(wildcard vsrc/*.vh)  #把 vsrc/ 目录下所有 .vh 文件都收集到 VSRCS 变量里。
 
 OBJ_DIR = obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
 WAVE = $(OBJ_DIR)/wave.vcd
 REF_SO = $(OBJ_DIR)/ref.so
+NPC_VSRCS_INC = $(abspath ./vsrc)
 
-VERILATOR_FLAGS = --cc --exe --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
+VERILATOR_FLAGS = --cc --exe -I$(NPC_VSRCS_INC) --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
 NPC_NEMU_INC = $(abspath ./npc-nemu/include)
 NPC_CSRCS_INC = $(abspath ./csrc)
-# Enable/disable difftest at build time (0 = disabled, 1 = enabled)
-ENABLE_DIFFTEST ?= 1
+
+
+# ── 从 npc-nemu 的 Kconfig 产物读取 DIFFTEST 开关 ──
+NPC_AUTO_CONF :=$(abspath ./npc-nemu/include/config/auto.conf) 
+-include $(NPC_AUTO_CONF)
+
+ifeq ($(CONFIG_DIFFTEST),y)
+ENABLE_DIFFTEST :=1
+else
+ENABLE_DIFFTEST :=0
+endif
 
 # Pass include paths and feature macros to verilator's -CFLAGS
-VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)"
+VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)" 
 
-all: build
+# ═══════════════════════════════════════════════════════════
+# 统一构建nemu和npc
+# ═══════════════════════════════════════════════════════════
+all:build
 
-build: $(REF_SO)
+build: build-verilog build-nemu
+
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -29,13 +44,13 @@ $(REF_SO): FORCE | $(OBJ_DIR)
 	ln -sf $(abspath ../nemu/build/riscv32-nemu-interpreter-so) $@
 
 build-verilog:
-	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRCS) $(CSRCS)
+	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRCS) $(CSRCS) $(VHSRCS)
 
-build: build-verilog
+build-nemu:
+	$(MAKE) -C npc-nemu all; #什么意思
 
 run: build
 	$(BIN)
-
 
 #DO NOT REMOVE THIS LINE!!!
 sim: build
@@ -47,6 +62,7 @@ sim: build
 clean:
 	rm -rf $(OBJ_DIR)
 	rm ./hex/*.log
+	$(MAKE) -C npc-nemu clean
 
 FORCE:
 

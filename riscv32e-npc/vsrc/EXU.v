@@ -1,5 +1,5 @@
 `define REG_WIDTH 5
-`include "vsrc/ctrl_defs.vh"
+`include "ctrl_defs.vh"
 
 module EXU(
 

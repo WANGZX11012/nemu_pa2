@@ -44,6 +44,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_lh;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_lhu;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_ebreak;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_csrrs;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sb;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sw;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sh;
@@ -67,13 +68,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sltu;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_slt;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_0;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_1;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_2;
-        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_3;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_4;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_5;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_6;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_7;
-        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_8;
         CData/*7:0*/ top__DOT__u_core__DOT__u_lsu__DOT__unnamedblk1__DOT__b;
         CData/*3:0*/ __Vfunc_top__DOT__u_core__DOT__u_exu__DOT__alu_func__0__op;
         CData/*2:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_wb_sel;
@@ -103,10 +103,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_pc4;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_alu_result;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_mem_data;
+        IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_csr_data;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_imm;
         IData/*31:0*/ __Vfunc_pmem_read_u16__6__Vfuncout;
         IData/*31:0*/ __Vfunc_pmem_read_u32__7__Vfuncout;
         IData/*31:0*/ __VactIterCount;
+        QData/*63:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mcycle;
         VlUnpacked<IData/*31:0*/, 32> top__DOT__u_core__DOT__u_regfile__DOT__rf;
         VlUnpacked<IData/*31:0*/, 32> top__DOT__u_core__DOT__u_regfile__DOT__rf_read;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
