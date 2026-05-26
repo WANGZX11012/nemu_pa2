@@ -40,17 +40,19 @@ build: build-verilog build-nemu
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(REF_SO): FORCE | $(OBJ_DIR)
-	ln -sf $(abspath ../nemu/build/riscv32-nemu-interpreter-so) $@
+# 优化：只在目标不存在或源更新时才重新链接
+$(REF_SO): $(abspath ../nemu/build/riscv32-nemu-interpreter-so) | $(OBJ_DIR)
+	ln -sf $< $@
 
-build-verilog:
+#auto.conf 变了就强制 Verilator 重跑
+build-verilog: $(NPC_AUTO_CONF)
 	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRCS) $(CSRCS) $(VHSRCS)
 
 build-nemu:
-	$(MAKE) -C npc-nemu all; #什么意思
+	$(MAKE) -C npc-nemu all; 
 
 run: build
-	$(BIN)
+	 $(MAKE) -C npc-nemu run IMG=$(IMG)
 
 #DO NOT REMOVE THIS LINE!!!
 sim: build
@@ -61,11 +63,11 @@ sim: build
 
 clean:
 	rm -rf $(OBJ_DIR)
-	rm ./hex/*.log
+	rm -f ./hex/*.log
 	$(MAKE) -C npc-nemu clean
 
 FORCE:
 
-.PHONY: all build build-verilog run sim clean FORCE
+.PHONY: all build build-verilog build-nemu run sim clean FORCE
 
 include ../Makefile

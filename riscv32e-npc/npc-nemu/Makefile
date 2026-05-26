@@ -1,11 +1,3 @@
-## ============================================================
-## npc/npc-nemu/Makefile
-## 这份 Makefile 像“舞台总导演”：
-## - 左手调度 C/C++ 编译（npc-nemu 本体 + bridge）
-## - 右手调用上层 npc 的 Verilator 产物（Vtop）
-## - 最后把所有演员（.o/.a）链接成可执行文件 npc-nemu
-## ============================================================
-
 ## C 编译器（负责 .c）
 CC  := gcc
 ## C++ 编译器（负责 .cpp 以及最终链接）
@@ -41,6 +33,15 @@ LDFLAGS  := -lreadline -ldl
 ## 先尝试读取菜单配置生成的结果；如果还没跑 menuconfig，则保持默认值
 -include $(NPC_NEMU_HOME)/include/config/auto.conf
 -include $(NPC_NEMU_HOME)/include/config/auto.conf.cmd
+# ── 配置变化自动检测：auto.conf 变了就删 .o 强制重编 ──
+AUTO_CONF    := $(NPC_NEMU_HOME)/include/config/auto.conf
+CONFIG_STAMP := $(BUILD_DIR)/.config.stamp
+
+$(CONFIG_STAMP): $(AUTO_CONF)
+	@echo "[npc-nemu] Config changed, force recompile..."
+	@touch $@
+
+
 
 ## ITRACE_COND：从 Kconfig 字符串转成 C 编译选项
 remove_quote = $(patsubst "%",%,$(patsubst "%",%,$1))
@@ -111,6 +112,9 @@ NPC_CPP_OBJS := \
   $(BUILD_DIR)/dpic.o \
   $(BUILD_DIR)/sim_bridge.o
 
+# auto.conf 变化 → CONFIG_STAMP 更新 → 所有 .o 视为过期 → 自动重编
+$(NPC_NEMU_C_OBJS) $(NPC_CPP_OBJS): $(CONFIG_STAMP)
+
 ## 链接时需要的 Verilator 侧对象：
 ## - Vtop__ALL.a：你的 RTL 转出来的核心模型库
 ## - verilated*.cpp：Verilator 运行时支持（时间轮、trace、线程等）
@@ -127,11 +131,10 @@ all: $(BIN)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-## 关键依赖：
-## 每次都先触发一次上层 npc 的 build，确保 Vtop__ALL.a 是最新 RTL 产物。
-## 这样改了 vsrc/*.v 后，npc-nemu 不会“误吃旧库”。
-$(OBJ_DIR)/Vtop__ALL.a: FORCE
-	$(MAKE) -C $(NPC_ROOT) build
+# 仅缺失时兜底构建，不再每次触发父目录
+$(OBJ_DIR)/Vtop__ALL.a:
+	@echo "[npc-nemu] Vtop__ALL.a missing, building Verilator..."
+	$(MAKE) -C $(NPC_ROOT) build-verilog
 
 ## 空目标 FORCE：用来强制让依赖规则每次都执行
 FORCE:
@@ -188,7 +191,7 @@ $(BUILD_DIR)/sim_bridge.o: $(NPC_ROOT)/csrc/sim_bridge.cpp | $(BUILD_DIR)
 
 ## 最终链接：
 ## 把 npc-nemu 自己的对象 + bridge 对象 + Verilator 模型/运行时 一次性拼成可执行文件
-$(BIN): $(OBJ_DIR)/Vtop__ALL.a $(NPC_NEMU_C_OBJS) $(NPC_CPP_OBJS)
+$(BIN): $(OBJ_DIR)/Vtop__ALL.a $(NPC_NEMU_C_OBJS) $(NPC_CPP_OBJS) $(CONFIG_STAMP)
 	$(CXX) -o $@ \
 		$(NPC_NEMU_C_OBJS) \
 		$(NPC_CPP_OBJS) \

@@ -25,14 +25,19 @@ module core(
   wire [31:0]csr_data;
   wire [11:0]csr_idx;
   wire       csr_wen;
-
+  wire       csr_s_w;       // IDU: 1=csrrs(置位) 0=csrrw(覆盖)
+  wire [31:0]csr_mtvec;     // CSRFile → NextPC: ecall 跳转目标
+  wire [31:0]csr_mepc;      // CSRFile → NextPC: mret 返回地址 
+ 
   wire [2:0] wb_sel;
-  wire [1:0] npc_sel;    // `NPC_PC4:pc+4 `NPC_JALR:jalr `NPC_JAL:jal
+  wire [2:0] npc_sel;
 
   wire       mem_re;
   wire       mem_we;
   wire [1:0] mem_width;
   wire       mem_signed;
+
+  // 异常相关（无额外信号，直接内联）
 
   // 这些是 IDU 输出但当前顶层未使用的控制信号
   wire       idu_rs1_en_unused;
@@ -83,7 +88,8 @@ module core(
     .branch_type   (branch_type),
     .invalid       (idu_invalid),
     .csr_idx       (csr_idx),
-    .csr_wen       (csr_wen)
+    .csr_wen       (csr_wen),
+    .csr_s_w       (csr_s_w)
   );
 
   RegisterFile #(
@@ -118,12 +124,14 @@ module core(
 
   // PC 路径单独模块化，逻辑保持不变
   wire [31:0] next_pc;
-  NextPC u_nextpc(
-    .pc      (pc),
-    .alu_result (alu_result),
-    .npc_sel (npc_sel),
+  NextPC u_nextpc( 
+    .pc           (pc),
+    .alu_result   (alu_result),
+    .npc_sel      (npc_sel),
     .branch_taken (branch_taken),
-    .next_pc (next_pc)
+    .csr_mtvec    (csr_mtvec),
+    .csr_mepc     (csr_mepc),
+    .next_pc      (next_pc)
   );
 
   wire [31:0] pc4;
@@ -164,9 +172,13 @@ module core(
     .clk           (clk),
     .reset         (reset),
     .csr_wen       (csr_wen),
-    //不需要读使能
-    .csr_wdata     (32'b0),
+    .ecall_trap    (npc_sel == `NPC_ECALL),
+    .ecall_pc      (pc),
+    .csr_wdata     (r_data1),
     .csr_idx       (csr_idx),
+    .csr_s_w       (csr_s_w),
+    .csr_mtvec     (csr_mtvec),
+    .csr_mepc      (csr_mepc),
     .csr_data      (csr_data)
   );
 

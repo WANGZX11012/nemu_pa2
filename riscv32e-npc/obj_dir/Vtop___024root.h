@@ -24,7 +24,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         CData/*3:0*/ top__DOT__u_core__DOT__alu_op;
         CData/*0:0*/ top__DOT__u_core__DOT__alu_src2_imm;
         CData/*0:0*/ top__DOT__u_core__DOT__alu_en;
-        CData/*1:0*/ top__DOT__u_core__DOT__npc_sel;
+        CData/*0:0*/ top__DOT__u_core__DOT__csr_wen;
+        CData/*2:0*/ top__DOT__u_core__DOT__npc_sel;
         CData/*1:0*/ top__DOT__u_core__DOT__mem_width;
         CData/*0:0*/ top__DOT__u_core__DOT__mem_signed;
         CData/*2:0*/ top__DOT__u_core__DOT__branch_type;
@@ -45,6 +46,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_lhu;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_ebreak;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_csrrs;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_csrrw;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_ecall;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_mret;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sb;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sw;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sh;
@@ -68,27 +72,29 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_sltu;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT__is_slt;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_0;
-        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_1;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_2;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_3;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_4;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_5;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_6;
         CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_7;
+        CData/*0:0*/ top__DOT__u_core__DOT__u_idu__DOT____VdfgRegularize_h52656aab_0_8;
         CData/*7:0*/ top__DOT__u_core__DOT__u_lsu__DOT__unnamedblk1__DOT__b;
         CData/*3:0*/ __Vfunc_top__DOT__u_core__DOT__u_exu__DOT__alu_func__0__op;
         CData/*2:0*/ __Vfunc_top__DOT__u_core__DOT__u_wbu__DOT__wb_func__1__i_wb_sel;
         CData/*7:0*/ __Vfunc_pmem_read_u8__5__Vfuncout;
+    };
+    struct {
         CData/*6:0*/ __Vtableidx1;
         CData/*5:0*/ __Vtableidx2;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __VicoFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
-    };
-    struct {
         SData/*15:0*/ top__DOT__u_core__DOT__u_lsu__DOT__unnamedblk2__DOT__half;
         VL_IN(inst,31,0);
         VL_OUT(pc,31,0);
         IData/*31:0*/ top__DOT__u_core__DOT__imm;
+        IData/*31:0*/ top__DOT__u_core__DOT__csr_data;
         IData/*31:0*/ top__DOT__u_core__DOT__r_data1;
         IData/*31:0*/ top__DOT__u_core__DOT__r_data2;
         IData/*31:0*/ top__DOT__u_core__DOT__alu_result;
@@ -96,6 +102,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
         IData/*31:0*/ top__DOT__u_core__DOT__rdata;
         IData/*31:0*/ top__DOT__u_core__DOT__next_pc;
         IData/*31:0*/ top__DOT__u_core__DOT__u_regfile__DOT__i;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mvendroid;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__marchid;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mcause;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mepc;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mstatus;
+        IData/*31:0*/ top__DOT__u_core__DOT__u_CSRFile__DOT__mtvec;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_exu__DOT__alu_func__0__Vfuncout;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_exu__DOT__alu_func__0__a;
         IData/*31:0*/ __Vfunc_top__DOT__u_core__DOT__u_exu__DOT__alu_func__0__b;

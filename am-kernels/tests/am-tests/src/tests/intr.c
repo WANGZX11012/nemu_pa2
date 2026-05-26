@@ -9,15 +9,16 @@ Context *simple_trap(Event ev, Context *ctx) //接受一个event 触发原因 �
       putch('t'); break;
     case EVENT_IRQ_IODEV:
       putch('d'); break;
-    case EVENT_YIELD:
-      putch('y'); break;
+    case EVENT_YIELD: // 1 是 yield
+      putch('y'); putch(' ');  break;
     default:
       panic("Unhandled event"); break;
   }
   return ctx;
 }
 
-void hello_intr() {
+void hello_intr() 
+{
   printf("Hello, AM World @ " __ISA__ "\n");
   printf("  t = timer, d = device, y = yield\n");
   io_read(AM_INPUT_CONFIG);

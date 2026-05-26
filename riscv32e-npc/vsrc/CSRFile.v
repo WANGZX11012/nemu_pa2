@@ -3,30 +3,34 @@
 module CSRFile#(
     parameter ADDR_WIDTH = 12
 ) (
-
+    //不需要读使能
     input           clk,
     input           reset,
     input           csr_wen,
-    //不需要读使能
+    input           ecall_trap,   //trap 信号相当于 NO
+    input  [31:0]   ecall_pc,      //ecall 时的 PC，保存到 mepc
     input  [31:0]   csr_wdata,
     input  [11:0]   csr_idx,
+    input           csr_s_w,      //是否置位的控制位
+
+    output [31:0]   csr_mtvec, //输出的mtvec值
+    output [31:0]   csr_mepc,  //输出的mepc值，供mret/NextPC使用
     output [31:0]   csr_data
+    
 
 );
     reg [31:0] csr_read;
-
-    reg [63:0] mcycle; //合并了
-
-    reg [31:0] mvendroid;
-    reg [31:0] marchid;
+    reg [63:0] mcycle;
+    reg [31:0] mvendroid, marchid;
+    reg [31:0] mcause, mepc, mstatus, mtvec;
 
     initial 
     begin
-        mvendroid = 32'h79737978;
-        marchid = 32'h18D08CF;
+        mvendroid = 32'h79737978;//ysyx
+        marchid = 32'h18D08CF;//我的学号
     end
 
-	always @(posedge clk)
+	always @(posedge clk)//mcycle 自增逻辑
 	begin
 	   if(reset)
 	       mcycle <= 64'b0;
@@ -34,19 +38,61 @@ module CSRFile#(
 	       mcycle <= mcycle + 64'b1;
 	end
 
-   always @(posedge clk) 
+    //模仿intr.c的 isa_raise_intr
+    always @(posedge clk) 
+    begin
+        if(reset) 
+        begin
+            mcause <= 0;
+            mepc <= 0;
+            mstatus <= 32'h1800; //初始化 
+            mtvec <= 0; //由am注册的cte init 的内联汇编 csrrw来写入
+        end   
+
+        else 
+        begin
+            if(ecall_trap)
+            begin
+                mcause <= 32'd11;
+                mepc <= ecall_pc;
+                mstatus[7] <= mstatus[3]; //MPIE <- MIE ，MPIE是第七位 MIE是第三位
+                mstatus[3] <= 1'b0;
+                mstatus[12:11] <= 2'b11;
+            end
+            else if (csr_wen) 
+            begin
+            /* verilator lint_off CASEINCOMPLETE  */ 
+            case (csr_idx)
+                12'h341: mepc    <= csr_s_w ? (csr_wdata |  mepc ) : csr_wdata;  // mepc
+                12'h342: mcause  <= csr_s_w ? (csr_wdata |  mcause ) : csr_wdata;  // mcause
+                12'h300: mstatus <= csr_s_w ? (csr_wdata |  mstatus ) : csr_wdata;  // mstatus
+                12'h305: mtvec   <= csr_s_w ? (csr_wdata |  mtvec ) : csr_wdata;  // mtvec
+                default: ;
+            endcase
+        end
+        end
+    
+    end
+
+   always @(*) //随时读 
    begin
     case (csr_idx)
-        12'hb0: csr_read = mcycle[31:0];
-        12'hb8: csr_read = mcycle[63:32];
+        12'hB00: csr_read = mcycle[31:0];
+        12'hB80: csr_read = mcycle[63:32];
         12'hf11: csr_read = mvendroid;
         12'hf12: csr_read = marchid;
-        default: ;
+        12'h341: csr_read = mepc;
+        12'h342: csr_read = mcause;
+        12'h300: csr_read = mstatus;
+        12'h305: csr_read = mtvec;
+        default: csr_read = 32'b0;
     endcase
 
    end
 
     assign  csr_data = csr_read;
+    assign csr_mtvec = mtvec;
+    assign csr_mepc  = mepc;    //不需要+4 am的traps已经做了
 
 endmodule
 

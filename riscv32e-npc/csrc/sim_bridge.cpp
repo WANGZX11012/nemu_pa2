@@ -70,6 +70,7 @@ extern "C" void npc_sim_step_once(void) //npc 电路时钟脉冲一次
   if (top == nullptr || sim_halted || sim_abort) return;
 
   uint32_t pc = top->pc;
+  last_pc   = pc;
   last_inst = pc_read(pc);
   top->inst = last_inst;
 
