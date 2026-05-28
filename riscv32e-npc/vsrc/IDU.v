@@ -89,6 +89,7 @@ localparam IMM_J = 3'b100;
   //算术相关
   reg is_auipc;//！！！
   reg is_or;
+  reg is_ori;
   reg is_xor;
   reg is_xori;
   reg is_add;
@@ -127,6 +128,7 @@ localparam IMM_J = 3'b100;
     is_addi   = 1'b0;
     is_sub    = 1'b0;
     is_or     = 1'b0;
+    is_ori    = 1'b0;
     is_and    = 1'b0;
     is_andi   = 1'b0;
 
@@ -235,6 +237,7 @@ localparam IMM_J = 3'b100;
           3'b010: begin is_slti = 1'b1; end // slti
           3'b011: begin is_sltiu = 1'b1; end // sltiu
           3'b100: begin is_xori = 1'b1; end // xori
+          3'b110: begin is_ori  = 1'b1; end // ori
           3'b101: begin 
                     if (funct7 == 7'b0100000) is_srai = 1'b1;// srai
                     if (funct7 == 7'b0000000)  is_srli = 1'b1; //srli
@@ -290,7 +293,7 @@ localparam IMM_J = 3'b100;
   // rs1: addi/add/jalr/lw/lbu/sw/sb/xor/xori/sub 都需要
   // rs2: add/sw/sb/xor/sub 需要
   assign rs1_en = is_addi | is_jalr | is_add | is_lw | is_lbu | is_sw | is_sb | is_xor | 
-                  is_xori | is_sub | is_or | is_slti | is_sltiu | is_bne | is_beq | is_bge | 
+                  is_xori | is_sub | is_or | is_ori | is_slti | is_sltiu | is_bne | is_beq | is_bge | 
                   is_bgeu | is_blt  | is_bltu | is_lh | is_lhu | is_lb | is_sltu | is_slt | 
                   is_sh | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
                   is_csrrs | is_csrrw;
@@ -299,7 +302,7 @@ localparam IMM_J = 3'b100;
                   is_bge | is_bgeu |  is_blt | is_bltu | is_sltu | is_slt | is_sh | is_sra | is_sll | is_srl | is_and; 
 
   assign rd_en  = is_addi | is_jal | is_jalr | is_add | is_lui | is_lbu | is_lw | is_auipc | 
-                  is_xor | is_xori | is_sub | is_or | is_slti | is_sltiu | is_lh | is_lhu | is_lb | 
+                  is_xor | is_xori | is_sub | is_or | is_ori | is_slti | is_sltiu | is_lh | is_lhu | is_lb | 
                   is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
                   is_csrrs | is_csrrw;  //寄存器写使能逻辑
                   
@@ -440,7 +443,7 @@ localparam IMM_J = 3'b100;
   // 写回来源选择：
   // addi/add -> ALU，jal/jalr -> pc+4，lw/lbu -> MEM，lui -> IMM
   assign wb_sel = (is_addi | is_add | is_auipc | is_xor | is_xori | is_sub | is_or | is_slti | is_sltiu | is_sltu |
-                   is_slt | is_sra | is_srai | is_sll | is_srli | is_srl | is_andi | is_and | is_slli ) ? `WB_ALU :
+                   is_ori | is_slt | is_sra | is_srai | is_sll | is_srli | is_srl | is_andi | is_and | is_slli ) ? `WB_ALU :
                   
                   (is_jal | is_jalr) ? `WB_PC4 :
                   (is_lw | is_lbu | is_lh | is_lhu | is_lb) ? `WB_MEM :
@@ -460,7 +463,7 @@ localparam IMM_J = 3'b100;
   // invalid: 仅当未匹配到任何已实现指令时为 1
   assign invalid = illegal_shift_imm |
                    ~(is_addi | is_jal | is_jalr | is_add | is_lui | is_lbu | is_lw |
-                     is_auipc | is_xor | is_xori | is_sub | is_or | is_slti |
+                     is_auipc | is_xor | is_xori | is_sub | is_or | is_ori | is_slti |
                      is_sltiu | is_sw | is_sb | is_sh | is_ebreak | is_bne | is_bge | 
                      is_bgeu | is_blt | is_bltu | is_beq | is_lh | is_lhu | is_lb | 
                      is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
