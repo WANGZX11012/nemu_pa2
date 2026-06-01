@@ -406,10 +406,10 @@ void npc_sdb_mainloop()
       args = NULL;
     }
 
-#ifdef CONFIG_DEVICE
-    extern void sdl_clear_event_queue();// 清除 SDL 事件队列（如果启用设备
-    sdl_clear_event_queue();
-#endif
+// #ifdef CONFIG_DEVICE
+//     extern void sdl_clear_event_queue();// 清除 SDL 事件队列（如果启用设备
+//     sdl_clear_event_queue();
+// #endif
 
     int i;
     for (i = 0; i < NR_CMD; i ++) 

@@ -320,14 +320,6 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
     addr = (addr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
     // printf("pmem_write_u8 mapped 0x%08x -> 0x%08x\n", orig, addr);
   }
-
-  if(addr == 0xa00003f8)
-  {
-    putchar(data);
-    fflush(stdout);
-    return; //中途返回
-  }
-
   uint32_t off = (addr >= PC_BASE) ? (addr - PC_BASE) : addr;
   index = off >> 2;
   byte_off = off & 3u;
