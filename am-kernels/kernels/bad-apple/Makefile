@@ -3,7 +3,8 @@ VIDEO_COL = 80
 AUDIO_FREQ = 44100
 AUDIO_CHANNEL = 1
 
-VIDEO_SRC = cxk.mp4
+VIDEO_SRC = bad-apple.mp4
+# VIDEO_SRC = cxk.mp4
 VIDEO = build/video.frame
 AUDIO = build/audio.pcm
 

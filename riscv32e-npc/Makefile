@@ -10,6 +10,9 @@ BIN = $(OBJ_DIR)/V$(TOPNAME)
 WAVE = $(OBJ_DIR)/wave.vcd
 REF_SO = $(OBJ_DIR)/ref.so
 NPC_VSRCS_INC = $(abspath ./vsrc)
+AM_HOME = $(abspath ../abstract-machine)
+AM_INC = $(AM_HOME)/am/include
+KLIB_INC = $(AM_HOME)/klib/include
 
 VERILATOR_FLAGS = --cc --exe -I$(NPC_VSRCS_INC) --build --trace -Wall -Wno-fatal --top-module $(TOPNAME)
 NPC_NEMU_INC = $(abspath ./npc-nemu/include)
@@ -27,7 +30,7 @@ ENABLE_DIFFTEST :=0
 endif
 
 # Pass include paths and feature macros to verilator's -CFLAGS
-VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)" 
+VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -I$(AM_INC) -I$(KLIB_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)" 
 
 # ═══════════════════════════════════════════════════════════
 # 统一构建nemu和npc

@@ -1,12 +1,13 @@
 #include "dpic.h"
 #include "sim_bridge.h"
+#include "npc_device.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 static const uint32_t PC_BASE = 0x80000000u;
 
-static const size_t MAX_WORDS = 1024 * 1024 / 4; // dynamic_pc_inst max (1MiB / 4 bytes)
+static const size_t MAX_WORDS = 1024 * 1024 * 8 ; // dynamic_pc_inst max (1MiB  bytes)
 static const size_t PMEM_MAX_WORDS = (128 * 1024 * 1024) / 4; // pmem: 128MiB / 4 bytes (cover 0x8000_0000..0x87FF_FFFF)
 static uint32_t pmem_words[PMEM_MAX_WORDS];
 static size_t pmem_words_size = 0;
@@ -210,6 +211,11 @@ extern "C" void init_pmem(size_t bytes) //pmem初始化
 extern "C" uint32_t pmem_read_u32(uint32_t raddr) 
 {
   uint32_t index;
+  if(npc_device_in_range(raddr))
+  {
+    return npc_device_read(raddr, 4);
+  }
+
   if (raddr < PC_BASE)
   {
     raddr = (raddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -320,6 +326,13 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
     addr = (addr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
     // printf("pmem_write_u8 mapped 0x%08x -> 0x%08x\n", orig, addr);
   }
+
+  if(npc_device_in_range(addr))
+  {
+    npc_device_write(addr, 1, data);
+    return;
+  }
+
   uint32_t off = (addr >= PC_BASE) ? (addr - PC_BASE) : addr;
   index = off >> 2;
   byte_off = off & 3u;

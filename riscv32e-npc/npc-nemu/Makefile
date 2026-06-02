@@ -90,7 +90,8 @@ NPC_NEMU_C_SRCS := \
 ## 上层 npc 的 C++ 源（DPI 接口 + 仿真桥）
 NPC_CPP_SRCS := \
   $(NPC_ROOT)/csrc/dpic.cpp \
-  $(NPC_ROOT)/csrc/sim_bridge.cpp
+  $(NPC_ROOT)/csrc/sim_bridge.cpp \
+  $(NPC_ROOT)/csrc/npc_device.cpp
 
 ## 对应的 C 目标文件输出路径
 NPC_NEMU_C_OBJS := \
@@ -110,7 +111,8 @@ NPC_NEMU_C_OBJS := \
 ## 对应的 C++ 目标文件输出路径
 NPC_CPP_OBJS := \
   $(BUILD_DIR)/dpic.o \
-  $(BUILD_DIR)/sim_bridge.o
+  $(BUILD_DIR)/sim_bridge.o \
+  $(BUILD_DIR)/npc_device.o
 
 # auto.conf 变化 → CONFIG_STAMP 更新 → 所有 .o 视为过期 → 自动重编
 $(NPC_NEMU_C_OBJS) $(NPC_CPP_OBJS): $(CONFIG_STAMP)
@@ -187,6 +189,9 @@ $(BUILD_DIR)/dpic.o: $(NPC_ROOT)/csrc/dpic.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR)/sim_bridge.o: $(NPC_ROOT)/csrc/sim_bridge.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/npc_device.o: $(NPC_ROOT)/csrc/npc_device.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 ## 最终链接：

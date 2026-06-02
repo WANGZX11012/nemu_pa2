@@ -37,7 +37,7 @@ VM_PREFIX = Vtop
 VM_MODPREFIX = Vtop
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-  -I/home/wang/ysyx-workbench/riscv32e-npc/npc-nemu/include -I/home/wang/ysyx-workbench/riscv32e-npc/csrc -DENABLE_DIFFTEST=0 \
+  -I/home/wang/ysyx-workbench/riscv32e-npc/npc-nemu/include -I/home/wang/ysyx-workbench/riscv32e-npc/csrc -I/home/wang/ysyx-workbench/abstract-machine/am/include -I/home/wang/ysyx-workbench/abstract-machine/klib/include -DENABLE_DIFFTEST=0 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
@@ -47,6 +47,7 @@ VM_USER_CLASSES = \
   difftest \
   dpic \
   main \
+  npc_device \
   sim_bridge \
 
 # User .cpp directories (from .cpp's on Verilator command line)
@@ -68,6 +69,8 @@ difftest.o: csrc/difftest.cpp
 dpic.o: csrc/dpic.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 main.o: csrc/main.cpp 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+npc_device.o: csrc/npc_device.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 sim_bridge.o: csrc/sim_bridge.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
