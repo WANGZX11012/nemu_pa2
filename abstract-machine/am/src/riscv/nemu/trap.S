@@ -31,7 +31,7 @@ f(30) f(31)
 #define PUSH(n) STORE concat(x, n), (n * XLEN)(sp);
 #define POP(n)  LOAD  concat(x, n), (n * XLEN)(sp);
 
-#define CONTEXT_SIZE  ((NR_REGS + 4) * XLEN)
+#define CONTEXT_SIZE  ((NR_REGS + 3) * XLEN)
 #define OFFSET_SP     ( 2 * XLEN)
 #define OFFSET_CAUSE  ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
@@ -40,7 +40,7 @@ f(30) f(31)
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
-  addi sp, sp, -CONTEXT_SIZE  #给Context分配栈空间
+  addi sp, sp, -CONTEXT_SIZE
 
   MAP(REGS, PUSH)
 
@@ -60,11 +60,6 @@ __am_asm_trap:
   mv a0, sp
   call __am_irq_handle
 
-  mv sp, a0 
-  #trap.S 从哪里恢复上下文，取决于 sp 指向哪里；
-  #__am_irq_handle 返回的新 Context* 在 a0 中，所以必须 mv sp, a0，把恢复目标切换到新线程。
-
-
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
   csrw mstatus, t1
@@ -72,5 +67,5 @@ __am_asm_trap:
 
   MAP(REGS, POP)
 
-  addi sp, sp, CONTEXT_SIZE #释放栈空间
+  addi sp, sp, CONTEXT_SIZE
   mret

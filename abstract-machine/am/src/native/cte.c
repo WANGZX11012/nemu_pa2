@@ -15,13 +15,11 @@ void __am_pmem_unprotect();
 
 void __am_panic_on_return() { panic("should not reach here\n"); }
 
-static void irq_handle(Context *c) 
-{
+static void irq_handle(Context *c) {
   c->vm_head = thiscpu->vm_head;
   c->ksp = thiscpu->ksp;
 
-  if (thiscpu->ev.event == EVENT_ERROR) 
-  {
+  if (thiscpu->ev.event == EVENT_ERROR) {
     printf("Unhandle signal '%s' at pc = %p, badaddr = %p, cause = 0x%x\n",
       thiscpu->ev.msg, AM_REG_PC(&c->uc), thiscpu->ev.ref, thiscpu->ev.cause);
     assert(0);

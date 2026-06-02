@@ -117,9 +117,6 @@ module core(
                    (npc_sel == 2'b10) ? adj_jal_target :
                    pc4;
 
-
-
-
   PCReg u_pcreg(
     .clk     (clk),
     .reset   (reset),
