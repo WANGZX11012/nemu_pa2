@@ -8,13 +8,15 @@ module CSRFile#(
     input           reset,
     input           csr_wen,
     input           ecall_trap,   //trap 信号相当于 NO
+    input           ebreak_trap,  //ebreak 断点异常 (mcause=3)
+    input           mret_exec,    //mret 指令执行，恢复 mstatus
     input  [31:0]   ecall_pc,      //ecall 时的 PC，保存到 mepc
     input  [31:0]   csr_wdata,
     input  [11:0]   csr_idx,
     input           csr_s_w,      //是否置位的控制位
 
     output [31:0]   csr_mtvec, //输出的mtvec值
-    output [31:0]   csr_mepc,  //输出的mepc值，供mret/NextPC使用
+    output [31:0]   csr_mepc,  // 输出的mepc值，供mret/IFU使用
     output [31:0]   csr_data
     
 
@@ -53,11 +55,28 @@ module CSRFile#(
         begin
             if(ecall_trap)
             begin
-                mcause <= 32'd11;
+                mcause <= 32'd11;       // M-mode ecall
                 mepc <= ecall_pc;
-                mstatus[7] <= mstatus[3]; //MPIE <- MIE ，MPIE是第七位 MIE是第三位
-                mstatus[3] <= 1'b0;
-                mstatus[12:11] <= 2'b11;
+                mstatus[7] <= mstatus[3];       // MPIE <- MIE
+                mstatus[3] <= 1'b0;             // MIE  <- 0（关中断）
+                mstatus[12:11] <= mstatus[12:11]; // MPP 保持当前特权级（M-mode=11）
+                mstatus[17] <= 1'b0;            // MPRV <- 0（RISC-V 规范要求 trap 时清零）
+            end
+            else if(ebreak_trap)
+            begin
+                mcause <= 32'd3;        // Breakpoint
+                mepc <= ecall_pc;
+                mstatus[7] <= mstatus[3];       // MPIE <- MIE
+                mstatus[3] <= 1'b0;             // MIE  <- 0
+                mstatus[12:11] <= mstatus[12:11]; // MPP 保持
+                mstatus[17] <= 1'b0;            // MPRV <- 0
+            end
+            else if(mret_exec)
+            begin
+                mstatus[3]   <= mstatus[7];     // MIE  <- MPIE（恢复中断）
+                mstatus[7]   <= 1'b1;           // MPIE <- 1
+                mstatus[12:11] <= 2'b00;        // MPP  <- 0（最低特权级）
+                mstatus[17]  <= 1'b0;           // MPRV <- 0
             end
             else if (csr_wen) 
             begin

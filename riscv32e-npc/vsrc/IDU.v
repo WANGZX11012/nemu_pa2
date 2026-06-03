@@ -80,6 +80,7 @@ localparam IMM_J = 3'b100;
   reg is_csrrw; //csr读后写
   reg is_ecall;
   reg is_mret;
+  reg is_fence; // FENCE / FENCE.I（单周期设计中视为 NOP）
 
   //store相关
   reg is_sb;
@@ -159,6 +160,7 @@ localparam IMM_J = 3'b100;
     is_csrrw  = 1'b0;
     is_ecall  = 1'b0;
     is_mret   = 1'b0;
+    is_fence  = 1'b0;
 
 
 
@@ -268,14 +270,20 @@ localparam IMM_J = 3'b100;
           32'h30200073: is_mret  = 1'b1;
           default: ;
         endcase
-       
+
 
         if (funct3 == 3'b010)
           is_csrrs = 1'b1;
         else if(funct3 == 3'b001)
           is_csrrw = 1'b1;
-       
+
       end
+
+      7'b0001111: // FENCE / FENCE.I — 单周期设计中无需内存屏障，视为 NOP
+      begin
+        is_fence = 1'b1;
+      end
+
       default: ;
     endcase
 
@@ -464,12 +472,13 @@ localparam IMM_J = 3'b100;
   assign invalid = illegal_shift_imm |
                    ~(is_addi | is_jal | is_jalr | is_add | is_lui | is_lbu | is_lw |
                      is_auipc | is_xor | is_xori | is_sub | is_or | is_ori | is_slti |
-                     is_sltiu | is_sw | is_sb | is_sh | is_ebreak | is_bne | is_bge | 
-                     is_bgeu | is_blt | is_bltu | is_beq | is_lh | is_lhu | is_lb | 
+                     is_sltiu | is_sw | is_sb | is_sh | is_ebreak | is_bne | is_bge |
+                     is_bgeu | is_blt | is_bltu | is_beq | is_lh | is_lhu | is_lb |
                      is_sltu | is_slt | is_srai | is_sra | is_sll | is_srli | is_srl | is_andi | is_and | is_slli |
-                     is_csrrs | is_ecall | is_csrrw | is_mret);
+                     is_csrrs | is_ecall | is_csrrw | is_mret | is_fence);
 
-  assign csr_wen = is_csrrw | is_csrrs; //这两个都会写CSR 
+  // csrrw 总是写 CSR；csrrs 仅在 rs1≠x0 时写（RISC-V 规范要求 rs1=x0 时只读不写）
+  assign csr_wen = is_csrrw | (is_csrrs & (rs1 != 5'b0));
   assign csr_s_w = is_csrrs ? 1 : 0 ; //1代表要和rs1或
 
 

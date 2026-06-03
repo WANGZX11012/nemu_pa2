@@ -103,6 +103,10 @@ static void execute(uint64_t n)
   {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;              // 计数
+    // 每条指令递增 mcycle（64-bit），支持 csrr mcycle/mcycleh <<<<<
+    cpu.csr.mcycle_lo ++;
+    if (cpu.csr.mcycle_lo == 0) cpu.csr.mcycle_hi ++;
+    //
     trace_and_difftest(&s, cpu.pc); //执行指令后 进行difftest
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());

@@ -25,7 +25,9 @@ image: image-dep
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
+override NPC_HOME := $(AM_HOME)/../riscv32e-npc
+
 run: insert-arg
-	echo "TODO: add command here to run simulation"
+	$(NPC_HOME)/run-npc.sh $(IMAGE).bin  $(mainargs)
 
 .PHONY: insert-arg

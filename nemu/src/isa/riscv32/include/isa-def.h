@@ -36,6 +36,14 @@ typedef struct
   vaddr_t mepc; //异常返回地址(pc) 异常处理结束后 mret 通常从这里返回
   word_t mstatus;//机器状态寄存器
   word_t mtvec;//异常入口地址 如asm trap
+  // RT-Thread 需要读取 mcycle/mcycleh/mvendorid/marchid <<<<<
+  word_t mcycle_lo;  // mcycle 低 32 位 (0xB00)
+  word_t mcycle_hi;  // mcycle 高 32 位 (0xB80)
+  word_t mvendorid;  // 供应商 ID (0xF11)
+  word_t marchid;    // 微架构 ID (0xF12)
+
+
+  
 } riscv32_CSRs;
 
 

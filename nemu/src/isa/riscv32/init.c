@@ -36,6 +36,12 @@ static void restart() {
   cpu.gpr[0] = 0;
   cpu.csr.mstatus = 0x1800; //初始化mstatus
 
+  // RT-Thread 会读取这些 CSR，需要初始化为与 NPC 一致的默认值
+  cpu.csr.mvendorid = 0x79737978;  // "ysyx"，与 NPC CSRFile.v 一致
+  cpu.csr.marchid   = 0x018D08CF;  // 学号，与 NPC CSRFile.v 一致
+  cpu.csr.mcycle_lo = 0;
+  cpu.csr.mcycle_hi = 0;
+
 }
 
 void init_isa() {

@@ -7,7 +7,8 @@ int main(const char *args) {
     "Hello, AbstractMachine!\n"
     "mainargs = '%'.\n";
 
-  for (const char *p = fmt; *p; p++) {
+  for (const char *p = fmt; *p; p++) 
+  {
     (*p == '%') ? putstr(args) : putch(*p);
   }
 

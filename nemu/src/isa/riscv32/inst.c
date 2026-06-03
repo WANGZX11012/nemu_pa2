@@ -140,6 +140,16 @@ static word_t *csr_reg(word_t imm)
     return &cpu.csr.mstatus;
   case 0x305:
     return &cpu.csr.mtvec;
+  // RT-Thread 需要读取 mcycle/mcycleh/mvendorid/marchid <<<<<
+  case 0xB00:
+    return &cpu.csr.mcycle_lo;
+  case 0xB80:
+    return &cpu.csr.mcycle_hi;
+  case 0xF11:
+    return &cpu.csr.mvendorid;
+  case 0xF12:
+    return &cpu.csr.marchid;
+  // 和npc保持一致
   default:
     panic("Unknown csr");
     break;

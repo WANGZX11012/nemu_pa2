@@ -11,8 +11,9 @@ module core(
   output        invalid_dbg
 );
 
-  // 取指单元 IFU
+  // 取指单元 IFU（整合 PC 寄存器 + 下一 PC 计算）
   wire [31:0] inst_out;
+  wire [31:0] pc4;
 
   // 指令译码单元 IDU
   wire [4:0] rs1, rs2, rd;
@@ -26,8 +27,8 @@ module core(
   wire [11:0]csr_idx;
   wire       csr_wen;
   wire       csr_s_w;       // IDU: 1=csrrs(置位) 0=csrrw(覆盖)
-  wire [31:0]csr_mtvec;     // CSRFile → NextPC: ecall 跳转目标
-  wire [31:0]csr_mepc;      // CSRFile → NextPC: mret 返回地址 
+  wire [31:0]csr_mtvec;     // CSRFile → IFU: ecall 跳转目标
+  wire [31:0]csr_mepc;      // CSRFile → IFU: mret 返回地址 
  
   wire [2:0] wb_sel;
   wire [2:0] npc_sel;
@@ -62,8 +63,17 @@ module core(
   wire [31:0] r_a0;
 
   IFU u_ifu(
-    .inst_in  (inst),
-    .inst_out (inst_out)
+    .clk          (clk),
+    .reset        (reset),
+    .inst_in      (inst),
+    .alu_result   (alu_result),
+    .npc_sel      (npc_sel),
+    .branch_taken (branch_taken),
+    .csr_mtvec    (csr_mtvec),
+    .csr_mepc     (csr_mepc),
+    .pc           (pc),
+    .pc4          (pc4),
+    .inst_out     (inst_out)
   );
 
   IDU u_idu(
@@ -122,36 +132,14 @@ module core(
 
   );
 
-  // PC 路径单独模块化，逻辑保持不变
-  wire [31:0] next_pc;
-  NextPC u_nextpc( 
-    .pc           (pc),
-    .alu_result   (alu_result),
-    .npc_sel      (npc_sel),
-    .branch_taken (branch_taken),
-    .csr_mtvec    (csr_mtvec),
-    .csr_mepc     (csr_mepc),
-    .next_pc      (next_pc)
-  );
-
-  wire [31:0] pc4;
-  assign pc4 = pc + 32'd4;
-
-  PCReg u_pcreg(
-    .clk     (clk),
-    .reset   (reset),
-    .next_pc (next_pc),
-    .pc      (pc)
-  );
-
   WBU u_wbu(
-    .wb_sel     (wb_sel),
-    .pc4        (pc4),
-    .alu_result (alu_result),
+    .wb_sel     (wb_sel),  
+    .pc4        (pc4),  
+    .alu_result (alu_result), 
     .mem_data   (rdata),
-    .csr_data   (csr_data),
+    .csr_data   (csr_data), 
     .imm        (imm),
-    .wb_data    (wb_data)
+    .wb_data    (wb_data)  
   );
 
   LSU u_lsu(
@@ -173,6 +161,8 @@ module core(
     .reset         (reset),
     .csr_wen       (csr_wen),
     .ecall_trap    (npc_sel == `NPC_ECALL),
+    .ebreak_trap   (1'b0),         // EBREAK 由 DPI-C 处理，不走硬件异常
+    .mret_exec     (npc_sel == `NPC_MRET),
     .ecall_pc      (pc),
     .csr_wdata     (r_data1),
     .csr_idx       (csr_idx),
