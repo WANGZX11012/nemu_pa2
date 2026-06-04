@@ -130,6 +130,11 @@ static word_t my_mulhu(word_t a, word_t b)
 
 static word_t *csr_reg(word_t imm)
 {
+  // [DEBUG] 打印 CSR 地址，排查 Unknown csr 问题
+  if (imm != 0x341 && imm != 0x342 && imm != 0x300 && imm != 0x305 &&
+      imm != 0xB00 && imm != 0xB80 && imm != 0xF11 && imm != 0xF12) {
+    printf("[csr_reg DEBUG] Unknown CSR addr = 0x%08x (dec=%u)\n", (uint32_t)imm, (uint32_t)imm);
+  }
   switch (imm)
   {
   case 0x341:
