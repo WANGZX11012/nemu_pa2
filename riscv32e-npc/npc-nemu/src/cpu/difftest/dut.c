@@ -30,15 +30,7 @@ static bool checkregs(const DifftestCPUState *ref, vaddr_t pc, vaddr_t inst) {
     return false;
   }
 
-  // 跳过 csrr mcycle/mcycleh 指令的 GPR 比对（mcycle 值不一致但不需要比对）
-  uint32_t csr_addr = (inst >> 20) & 0xFFF;
-  int skip_rd = -1;
-  if (csr_addr == 0xB00 || csr_addr == 0xB80) {
-    skip_rd = (inst >> 7) & 0x1F;
-  }
-
   for (int i = 0; i < 32; i++) {
-    if (i == skip_rd) continue;
     char name[8];
     snprintf(name, sizeof(name), "x%d", i);
     if (!difftest_check_reg(name, pc, npc_cpu.pc, inst, ref->gpr[i], npc_cpu.gpr[i])) {

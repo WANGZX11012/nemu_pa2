@@ -130,11 +130,6 @@ static word_t my_mulhu(word_t a, word_t b)
 
 static word_t *csr_reg(word_t imm)
 {
-  // CSR 地址只有 12 位，但 SEXT 可能产生符号扩展（bit11=1 时扩展为 0xfffffxxx）
-  // 这里 mask 到低 12 位再匹配，否则 0xB00 会变成 0xFFFFFB00 从而走到 default
-  imm &= 0xFFF;
-
-  
   switch (imm)
   {
   case 0x341:
@@ -145,16 +140,11 @@ static word_t *csr_reg(word_t imm)
     return &cpu.csr.mstatus;
   case 0x305:
     return &cpu.csr.mtvec;
-  // RT-Thread 需要读取 mcycle/mcycleh/mvendorid/marchid <<<<<
-  case 0xB00:
-    return &cpu.csr.mcycle_lo;
-  case 0xB80:
-    return &cpu.csr.mcycle_hi;
-  case 0xF11:
-    return &cpu.csr.mvendorid;
-  case 0xF12:
-    return &cpu.csr.marchid;
-  // 和npc保持一致
+  // mcycle/mcycleh/mvendorid/marchid 已从 AM trm.c 中移除，不再需要
+  // case 0xB00: return &cpu.csr.mcycle_lo;
+  // case 0xB80: return &cpu.csr.mcycle_hi;
+  // case 0xF11: return &cpu.csr.mvendorid;
+  // case 0xF12: return &cpu.csr.marchid;
   default:
     panic("Unknown csr");
     break;

@@ -162,9 +162,7 @@ __EXPORT void difftest_exec(uint64_t n)
     isa_exec_once(&s);   // ③ 真正的指令执行! (定义在 src/isa/riscv32/inst.c)
                          //    内部调用 inst_fetch 取指 → decode_exec 译码+执行
     cpu.pc = s.dnpc;     // ④ 更新 NEMU 的 PC (dnpc 可能不等于 snpc, 如跳转指令)
-    // [MODIFIED] 每条指令递增 mcycle（与 NPC 硬件 CSRFile.v 行为一致）
-    cpu.csr.mcycle_lo++;
-    if (cpu.csr.mcycle_lo == 0) cpu.csr.mcycle_hi++;
+    // mcycle 递增已移除（AM trm.c 不再读取 mcycle）
   }
 }
 
