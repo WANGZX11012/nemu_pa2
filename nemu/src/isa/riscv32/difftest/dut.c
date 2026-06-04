@@ -16,6 +16,7 @@
 #include <isa.h>
 #include <cpu/difftest.h>
 #include "../local-include/reg.h"
+#include <memory/paddr.h>  // paddr_read, 用于读取当前指令来跳过 mcycle 比对
 
 #include "itbuf.h" //new
 
@@ -35,8 +36,17 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc)
 {
   if (!check_reg_or_fail("pc", pc, ref_r->pc, cpu.pc)) return false; //单独比较pc
 
+  // [MODIFIED] csrr mcycle/mcycleh 时跳过目标寄存器比对（mcycle 值不同步，无意义）<<<<<
+  uint32_t inst = paddr_read(pc, 4);
+  uint32_t csr_addr = (inst >> 20) & 0xFFF;
+  int skip_rd = -1;
+  if (csr_addr == 0xB00 || csr_addr == 0xB80) {
+    skip_rd = (inst >> 7) & 0x1F;
+  }
+
   for (int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); i++) 
   {
+    if (i == skip_rd) continue;
     if (!check_reg_or_fail(reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i])) return false;
   }
 

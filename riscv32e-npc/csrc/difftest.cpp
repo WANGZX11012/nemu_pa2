@@ -27,13 +27,10 @@
 #include <difftest-def.h>  // DIFFTEST_TO_REF, DIFFTEST_TO_DUT
 
 // ── 寄存器传递格式 (与 NEMU ref.c 约定一致) ─────────────────────────────
-// flat array of 35 uint32_t: [0]=pc, [1..32]=gpr[0..31], [33]=mcycle_lo, [34]=mcycle_hi
-// [MODIFIED] 新增 mcycle_lo/hi，与 NEMU ref.c 新版 regcpy 格式一致
+// flat array of 33 uint32_t: [0]=pc, [1..32]=gpr[0..31]
 struct RefCPUState {
   uint32_t pc;
   uint32_t gpr[32];
-  uint32_t mcycle_lo;
-  uint32_t mcycle_hi;
 };
 
 // ── 全局状态 ────────────────────────────────────────────────────────────
@@ -101,8 +98,16 @@ static void checkregs(const RefCPUState &ref, uint32_t dut_pc, uint32_t dut_inst
     return;
   }
 
+  // 跳过 csrr mcycle/mcycleh 的 GPR 比对（mcycle 值不一致，不比对）
+  uint32_t csr_addr = (dut_inst >> 20) & 0xFFF;
+  int skip_rd = -1;
+  if (csr_addr == 0xB00 || csr_addr == 0xB80) {
+    skip_rd = (dut_inst >> 7) & 0x1F;
+  }
+
   // 32 个 GPR 比对
   for (int i = 0; i < 32; i++) {
+    if (i == skip_rd) continue;
     if (ref.gpr[i] != dut_gpr[i]) 
     {
       std::fprintf(stderr,
@@ -135,12 +140,10 @@ void difftest_init(uint32_t dut_pc)
   ref_difftest_memcpy(MEM_BASE, pmem_buf, byte_count, DIFFTEST_TO_REF);
   delete[] pmem_buf;                               // 释放临时缓冲区
 
-  // ③ 寄存器同步: NPC 的初始 PC、GPR、mcycle → NEMU
+  // ③ 寄存器同步: NPC 的初始 PC 和 GPR → NEMU
   RefCPUState dut_init = {};
   dut_init.pc = dut_pc;
   npc_sim_get_gprs(dut_init.gpr);
-  // [MODIFIED] 同步 mcycle，确保 csrr mcycle 在 difftest 时一致
-  npc_sim_get_mcycle(&dut_init.mcycle_lo, &dut_init.mcycle_hi);
   ref_difftest_regcpy(&dut_init, DIFFTEST_TO_REF);
 }
 
