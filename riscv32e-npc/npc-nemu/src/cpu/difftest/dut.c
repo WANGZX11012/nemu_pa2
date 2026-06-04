@@ -12,9 +12,12 @@
 #include <sim_bridge.h>
 #include <string.h>
 
+// [MODIFIED] 新增 mcycle_lo/hi 字段，与 NEMU ref.c 的 regcpy 格式一致 (35 个 uint32_t)
 typedef struct {
   vaddr_t pc;
   word_t gpr[32];
+  word_t mcycle_lo;
+  word_t mcycle_hi;
 } DifftestCPUState;
 
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
@@ -103,6 +106,8 @@ void init_difftest(char *ref_so_file, char *img_file, long img_size, int port) {
   for (int i = 0; i < 32; i++) {
     dut_init.gpr[i] = npc_cpu.gpr[i];
   }
+  // [MODIFIED] 同步 mcycle 到 NEMU REF，确保 csrr mcycle 结果一致
+  npc_sim_get_mcycle(&dut_init.mcycle_lo, &dut_init.mcycle_hi);
   ref_difftest_regcpy(&dut_init, DIFFTEST_TO_REF);
 }
 

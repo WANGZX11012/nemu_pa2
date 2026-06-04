@@ -48,18 +48,17 @@
 // ============================================================================
 // 寄存器传递格式约定
 // ============================================================================
-// NPC 端 (difftest.cpp) 用这个结构体传递寄存器:
-//   struct RefCPUState { uint32_t pc; uint32_t gpr[32]; };
-// 它在内存中是连续的 33 个 uint32_t:
+// NPC 端用这个结构体传递寄存器:
+//   struct RefCPUState { uint32_t pc; uint32_t gpr[32]; uint32_t mcycle_lo; uint32_t mcycle_hi; };
+// 它在内存中是连续的 35 个 uint32_t:
 //   offset 0  → pc
 //   offset 1  → gpr[0] (x0, 硬连线为0)
-//   offset 2  → gpr[1] (x1/ra)
 //   ...
 //   offset 32 → gpr[31] (x31/t6)
-//
-// 用 enum 给这些偏移量命名, 避免代码里出现魔法数字 0 和 1
+//   offset 33 → mcycle_lo
+//   offset 34 → mcycle_hi
 // ============================================================================
-enum { IDX_PC = 0, IDX_GPR = 1 };  // gpr[i] 在 flat array 中的偏移 = IDX_GPR + i
+enum { IDX_PC = 0, IDX_GPR = 1, IDX_MCYCLE_LO = 33, IDX_MCYCLE_HI = 34 };
 
 // ============================================================================
 // difftest_memcpy — 内存批量拷贝 (物理地址 ↔ 宿主缓冲区)
@@ -104,7 +103,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) 
 {
   // 把 void* 当作 uint32_t 数组来访问
-  // 布局: r[0]=pc, r[1]=x0, r[2]=x1, ..., r[32]=x31
+  // 布局: r[0]=pc, r[1..32]=gpr[0..31], r[33]=mcycle_lo, r[34]=mcycle_hi
   uint32_t *r = (uint32_t *)dut;
 
   if (direction == DIFFTEST_TO_REF) {
@@ -114,6 +113,9 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
       cpu.gpr[i] = r[IDX_GPR + i];     // r[1..32] = NPC 的 x0..x31
     }
     cpu.gpr[0] = 0;                     // x0 强制清零 (RISC-V 规范)
+    // [MODIFIED] 同步 mcycle 值，确保 csrr mcycle 结果一致
+    cpu.csr.mcycle_lo = r[IDX_MCYCLE_LO];
+    cpu.csr.mcycle_hi = r[IDX_MCYCLE_HI];
   } else {
     // ─── 方向: 读取 REF (NEMU → NPC) ───
     r[IDX_PC] = cpu.pc;                // r[0] = NEMU 的 PC
@@ -121,6 +123,9 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
       r[IDX_GPR + i] = cpu.gpr[i];    // r[1..32] = NEMU 的 x0..x31
     }
     r[IDX_GPR] = 0;                    // x0 始终报告为 0
+    // [MODIFIED] 同步 mcycle 值
+    r[IDX_MCYCLE_LO] = cpu.csr.mcycle_lo;
+    r[IDX_MCYCLE_HI] = cpu.csr.mcycle_hi;
   }
 }
 
@@ -157,6 +162,9 @@ __EXPORT void difftest_exec(uint64_t n)
     isa_exec_once(&s);   // ③ 真正的指令执行! (定义在 src/isa/riscv32/inst.c)
                          //    内部调用 inst_fetch 取指 → decode_exec 译码+执行
     cpu.pc = s.dnpc;     // ④ 更新 NEMU 的 PC (dnpc 可能不等于 snpc, 如跳转指令)
+    // [MODIFIED] 每条指令递增 mcycle（与 NPC 硬件 CSRFile.v 行为一致）
+    cpu.csr.mcycle_lo++;
+    if (cpu.csr.mcycle_lo == 0) cpu.csr.mcycle_hi++;
   }
 }
 

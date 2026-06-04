@@ -110,6 +110,15 @@ extern "C" void npc_sim_get_gprs(uint32_t *gpr)
   }
 }
 
+// [MODIFIED] 读取 NPC 的 mcycle (64-bit) 用于 difftest CSR 同步
+extern "C" void npc_sim_get_mcycle(uint32_t *lo, uint32_t *hi)
+{
+  if (top == nullptr || lo == nullptr || hi == nullptr) return;
+  uint64_t mcycle = top->rootp->top__DOT__u_core__DOT__u_CSRFile__DOT__mcycle;
+  *lo = (uint32_t)(mcycle & 0xFFFFFFFFu);
+  *hi = (uint32_t)(mcycle >> 32);
+}
+
 extern "C" bool npc_sim_is_halted(void) 
 {
   return sim_halted;
