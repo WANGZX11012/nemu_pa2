@@ -130,11 +130,11 @@ static word_t my_mulhu(word_t a, word_t b)
 
 static word_t *csr_reg(word_t imm)
 {
-  // [DEBUG] 打印 CSR 地址，排查 Unknown csr 问题
-  if (imm != 0x341 && imm != 0x342 && imm != 0x300 && imm != 0x305 &&
-      imm != 0xB00 && imm != 0xB80 && imm != 0xF11 && imm != 0xF12) {
-    printf("[csr_reg DEBUG] Unknown CSR addr = 0x%08x (dec=%u)\n", (uint32_t)imm, (uint32_t)imm);
-  }
+  // CSR 地址只有 12 位，但 SEXT 可能产生符号扩展（bit11=1 时扩展为 0xfffffxxx）
+  // 这里 mask 到低 12 位再匹配，否则 0xB00 会变成 0xFFFFFB00 从而走到 default
+  imm &= 0xFFF;
+
+  
   switch (imm)
   {
   case 0x341:
