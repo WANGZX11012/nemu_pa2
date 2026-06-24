@@ -323,8 +323,7 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
   uint32_t byte_off;
   if (addr < PC_BASE)
   {
-    addr = (addr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
-    // printf("pmem_write_u8 mapped 0x%08x -> 0x%08x\n", orig, addr);
+    addr = (addr & 0x07ffffffu) | PC_BASE; // 强制地址转换到0x80000000..0x87ffffff 但是大于PC_BASE 例如串口地址 就不作转换
   }
 
   if(npc_device_in_range(addr))

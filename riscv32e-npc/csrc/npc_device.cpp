@@ -4,8 +4,8 @@
 #include <cstdio>
 #include <ctime>
 
-static constexpr uint32_t SERIAL_ADDR = 0xa00003f8u;
-static constexpr uint32_t RTC_ADDR = 0xa0000048u;
+static constexpr uint32_t SERIAL_ADDR = 0xa00003f8u;  //串口地址
+static constexpr uint32_t RTC_ADDR = 0xa0000048u;  //RTC地址
 
 static uint64_t boot_time_us = 0;
 
