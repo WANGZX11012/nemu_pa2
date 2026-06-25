@@ -9,6 +9,24 @@ static constexpr uint32_t RTC_ADDR = 0xa0000048u;  //RTC地址
 
 static uint64_t boot_time_us = 0;
 
+bool static is_skip = false; //跳过对比标志
+
+void npc_skip_set(void) //跳过对比标志设置
+{
+  is_skip = true;
+}
+
+bool npc_skip_consume(void) //跳过对比标志消费
+{
+  bool val = is_skip; //读旧值
+  is_skip = false;    //清除标志
+  return val;         //返回旧值 也就如果读到true 返回true
+}
+
+
+
+
+
 
 static uint64_t get_time_us() 
 {

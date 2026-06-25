@@ -12,7 +12,7 @@
 #define COL_GREEN    0x00cc33
 #define COL_PURPLE   0x2a0a29
 
-enum { WHITE = 0, RED, GREEN, PURPLE };
+enum { WHITE = 0, RED, GREEN, PURPLE }; //颜色枚举
 struct character {
   char ch;
   int x, y, v, t;

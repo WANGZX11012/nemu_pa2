@@ -14,7 +14,7 @@
 // ============================================================================
 
 #include "difftest.h"
-
+#include "npc_device.h"
 #include "sim_bridge.h"
 #include "dpic.h"  // pmem_copy_out, pmem_get_word_count
 
@@ -153,6 +153,18 @@ void difftest_init(uint32_t dut_pc)
 bool difftest_step(uint32_t dut_pc, const uint32_t *dut_gpr) 
 {
   if (diff_failed) return false;  // 已经失败, 不再继续
+
+  if (npc_skip_consume()) 
+  {
+    uint32_t skip_pc = npc_sim_get_pc();
+    std::fprintf(stderr, "[SKIP] MMIO instruction at pc=0x%08x, skipping REF\n", skip_pc);
+    RefCPUState dut_state;
+    dut_state.pc = skip_pc;
+    for (int i = 0; i < 32; i++) dut_state.gpr[i] = dut_gpr[i];
+    ref_difftest_regcpy(&dut_state, DIFFTEST_TO_REF);
+    return true;
+  }
+
 
   uint32_t dut_inst = npc_sim_get_inst();  // 取当前 DUT 执行的指令 (用于错误报告)
 

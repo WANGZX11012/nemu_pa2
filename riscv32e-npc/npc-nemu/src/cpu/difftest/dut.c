@@ -11,6 +11,8 @@
 #include <npc_utils.h>
 #include <sim_bridge.h>
 #include <string.h>
+#include <stdio.h>
+#include "npc_device.h"
 
 typedef struct {
   vaddr_t pc;
@@ -108,10 +110,26 @@ void init_difftest(char *ref_so_file, char *img_file, long img_size, int port) {
 
 bool difftest_step(vaddr_t pc, vaddr_t npc, vaddr_t inst) {
   (void)npc;
+  (void)pc;
+  (void)inst;
+
+  // MMIO 指令：跳过 REF 执行，直接同步 DUT → REF
+  if (npc_skip_consume()) {
+    // fprintf(stderr, "[SKIP] MMIO at pc=0x%08x, inst=0x%08x, skipping REF\n", (uint32_t)pc, (uint32_t)inst);
+    DifftestCPUState dut_state;
+    dut_state.pc = npc_cpu.pc;
+    for (int i = 0; i < 32; i++) {
+      dut_state.gpr[i] = npc_cpu.gpr[i];
+    }
+    ref_difftest_regcpy(&dut_state, DIFFTEST_TO_REF);
+    return true;
+  }
 
   DifftestCPUState ref_r;
+
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+
   return checkregs(&ref_r, pc, inst);
 }
 

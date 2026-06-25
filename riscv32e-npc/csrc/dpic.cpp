@@ -213,6 +213,7 @@ extern "C" uint32_t pmem_read_u32(uint32_t raddr)
   uint32_t index;
   if(npc_device_in_range(raddr))
   {
+    npc_skip_set();
     return npc_device_read(raddr, 4);
   }
 
@@ -234,6 +235,11 @@ extern "C" uint32_t pmem_read_u32(uint32_t raddr)
 
 extern "C" uint8_t pmem_read_u8(uint32_t raddr) 
 {
+  if (npc_device_in_range(raddr)) {
+    npc_skip_set();
+    return (uint8_t)npc_device_read(raddr, 1);
+  }
+
   uint32_t index;
   uint32_t byte_off;
   if (raddr < PC_BASE)
@@ -259,6 +265,11 @@ extern "C" uint8_t pmem_read_u8(uint32_t raddr)
 
 extern "C" uint16_t pmem_read_u16(uint32_t raddr) //半字的读
 {
+  if (npc_device_in_range(raddr)) {
+    npc_skip_set();
+    return (uint16_t)npc_device_read(raddr, 2);
+  }
+
   if (raddr < PC_BASE)
   {
     raddr = (raddr & 0x07ffffffu) | PC_BASE; // map low addresses into 0x80000000..0x87ffffff
@@ -300,6 +311,12 @@ extern "C" uint16_t pmem_read_u16(uint32_t raddr) //半字的读
 
 extern "C" void pmem_write_u32(uint32_t waddr, uint32_t wdata) 
 {
+  if (npc_device_in_range(waddr)) {
+    npc_skip_set();
+    npc_device_write(waddr, 4, wdata);
+    return;
+  }
+
   uint32_t index;
   if (waddr < PC_BASE)
   {
@@ -328,6 +345,7 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
 
   if(npc_device_in_range(addr))
   {
+    npc_skip_set();
     npc_device_write(addr, 1, data);
     return;
   }
@@ -349,6 +367,12 @@ extern "C" void pmem_write_u8(uint32_t addr, uint8_t data)
 
 extern "C" void pmem_write_u16(uint32_t addr, uint16_t data) 
 {
+  if (npc_device_in_range(addr)) {
+    npc_skip_set();
+    npc_device_write(addr, 2, data);
+    return;
+  }
+
   uint32_t index;
   if (addr < PC_BASE)
   {
