@@ -1,4 +1,4 @@
-#include <npc_isa.h>
+#include <npc_reg.h>
 #include <cpu/npc_cpu.h>
 #include <stdio.h>
 

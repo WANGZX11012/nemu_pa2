@@ -10,7 +10,7 @@
 #include <string.h>
 #include <npc_macro.h>
 
-#include <generated/autoconf.h>
+#include <generated/autoconf.h> //引入配置文件
 
 typedef uint32_t word_t;
 typedef int32_t  sword_t;

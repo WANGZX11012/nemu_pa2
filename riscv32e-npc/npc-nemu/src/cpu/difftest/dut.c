@@ -7,7 +7,7 @@
 
 #include <cpu/difftest.h>
 #include <cpu/npc_cpu.h>
-#include <npc_isa.h>
+#include <npc_reg.h>
 #include <npc_utils.h>
 #include <sim_bridge.h>
 #include <string.h>

@@ -1,5 +1,5 @@
-#ifndef __NPC_ISA_H__
-#define __NPC_ISA_H__
+#ifndef __NPC_REG_H__
+#define __NPC_REG_H__
 
 #include <npc_common.h>
 

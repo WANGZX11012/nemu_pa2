@@ -57,7 +57,6 @@ CFLAGS += $(CFLAGS_TRACE)
 INCLUDES := \
   -I$(NPC_NEMU_ROOT)/include \
   -I$(NPC_NEMU_ROOT)/include/cpu \
-  -I$(NPC_NEMU_ROOT)/include/memory \
   -I$(NPC_NEMU_ROOT)/include/readline \
   -I$(NPC_ROOT)/csrc \
   -I$(OBJ_DIR) \
@@ -78,7 +77,7 @@ NPC_NEMU_C_SRCS := \
   $(NPC_NEMU_ROOT)/src/cpu/cpu-exec.c \
   $(NPC_NEMU_ROOT)/src/cpu/difftest/dut.c \
   $(NPC_NEMU_ROOT)/src/engine/interpreter/init.c \
-  $(NPC_NEMU_ROOT)/src/isa/npc_isa.c \
+  $(NPC_NEMU_ROOT)/src/isa/npc_reg.c \
   $(NPC_NEMU_ROOT)/src/monitor/monitor.c \
   $(NPC_NEMU_ROOT)/src/monitor/sdb/sdb.c \
   $(NPC_NEMU_ROOT)/src/utils/log.c \
@@ -99,7 +98,7 @@ NPC_NEMU_C_OBJS := \
   $(BUILD_DIR)/cpu-exec.o \
   $(BUILD_DIR)/difftest.o \
   $(BUILD_DIR)/init.o \
-  $(BUILD_DIR)/npc_isa.o \
+  $(BUILD_DIR)/npc_reg.o \
   $(BUILD_DIR)/monitor.o \
   $(BUILD_DIR)/sdb.o \
   $(BUILD_DIR)/log.o \
@@ -161,7 +160,7 @@ $(BUILD_DIR)/difftest.o: $(NPC_NEMU_ROOT)/src/cpu/difftest/dut.c | $(BUILD_DIR)
 $(BUILD_DIR)/init.o: $(NPC_NEMU_ROOT)/src/engine/interpreter/init.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD_DIR)/npc_isa.o: $(NPC_NEMU_ROOT)/src/isa/npc_isa.c | $(BUILD_DIR)
+$(BUILD_DIR)/npc_reg.o: $(NPC_NEMU_ROOT)/src/isa/npc_reg.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR)/monitor.o: $(NPC_NEMU_ROOT)/src/monitor/monitor.c | $(BUILD_DIR)
