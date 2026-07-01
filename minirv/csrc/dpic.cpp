@@ -165,14 +165,12 @@ extern "C" uint32_t pc_read(uint32_t addr)
   {
     index = addr >> 2;
   }
-  
   // 2) 优先从“动态加载程序”取指（load_hex_program 成功后填充）
   //    dynamic_pc_inst_size 表示当前已分配/可访问的动态指令区大小
   if (index < dynamic_pc_inst_size) //是否落在范围内 0的话就加载default程序
   {
     return dynamic_pc_inst[index];
   }
-
   // 3) 若没有动态程序（或超出动态区），回退到内置 default_pc_inst
   //    这就是你不传镜像时仍能跑起来的原因
   if (index < sizeof(default_pc_inst) / sizeof(default_pc_inst[0]))
@@ -183,6 +181,8 @@ extern "C" uint32_t pc_read(uint32_t addr)
   // 4) 两个区域都越界则返回 0（等价于取到空指令/非法指令，由上层处理）
   return 0;
 }
+
+
 
 extern "C" void npc_ebreak(int code) //连接sim bridge
 {

@@ -206,6 +206,13 @@ extern "C" void init_pmem(size_t bytes) //pmem初始化
   {
     pmem_words[i] = 0;
   }
+
+  // 加载默认指令到 pmem_words，使 SDB 的 x 命令能看到数据
+  size_t n = sizeof(default_pc_inst) / sizeof(default_pc_inst[0]);
+  for (size_t i = 0; i < n && i < pmem_words_size; i++) {
+    pmem_words[i] = default_pc_inst[i];
+  }
+  dynamic_pc_inst_size = 0; // 未加载 hex，标记为无动态程序
 }
 
 extern "C" uint32_t pmem_read_u32(uint32_t raddr) 

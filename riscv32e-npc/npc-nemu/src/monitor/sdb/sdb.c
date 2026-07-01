@@ -3,6 +3,8 @@
 #include <readline/npc_readline.h>
 #include <readline/npc_history.h>
 #include "sdb.h"
+#include "expr.h"
+#include "watchpoint.h"
 #include <sim_bridge.h>
 #include "itbuf.h"
 
@@ -12,8 +14,6 @@ static int is_batch_mode = false;
 // void init_wp_pool();    // 初始化监视点池
 
 
-
-/* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() 
 {
   static char *line_read = NULL;
@@ -58,12 +58,10 @@ static int cmd_help(char *args);// 声明 help 命令处理函数
 static int cmd_si(char *args);//单步执行
 static int cmd_d(char *args);//显示指令历史
 static int cmd_info(char *args);//寄存器或监视点信息
-// static int cmd_x(char *args);//查看内存地址
-// static int cmd_p(char *agrs);//表达式求值
-// static int cmd_t_expr(char *args);//测试表达式
-
-// static int cmd_w(char *args);//添加监视点
-// static int cmd_d(char *args);//删除监视点
+static int cmd_x(char *args);//查看内存地址
+static int cmd_p(char *args);//表达式求值
+static int cmd_w(char *args);//添加监视点
+static int cmd_wd(char *args);//删除监视点
 
 
 // 命令表结构体：存储命令名、描述和处理函数
@@ -83,15 +81,12 @@ static struct
  { "info","Type r to print all regs ; w to print all watchpoints",cmd_info},
  //usage ： info r 就是打印所有寄存器 info w打印监视点还没实现
 //
-//  { "x","x to examine memory", cmd_x},
-//  //usage: x 10 0x8000000打印 内存地址为0x8000_0000附近的10个字节 内存的值
+ { "x","x to examine memory", cmd_x},
+ //usage: x 10 0x8000000打印 内存地址为0x8000_0000附近的10个字节 内存的值
 
-//   { "p", "Print expression ", cmd_p},
-
-//   {"t_expr", "Tests 1000 generated expr", cmd_t_expr},
-  
-//   {"w", "Add WatchPoint", cmd_w},
-//   {"d", "Delete WatchPoint", cmd_d},
+  { "p", "Print expression ", cmd_p},
+  { "w", "Add WatchPoint", cmd_w},
+  { "wd","Delete WatchPoint", cmd_wd},
 
 
   /* TODO: Add more commands */
@@ -181,11 +176,10 @@ static int cmd_info(char *args)
   {
     npc_isa_reg_display();
   }
-//   else if(arg != NULL && strcmp(arg, "w") == 0)
-//   {
-//     print_watchpoints();
-//
-//   }
+  else if(arg != NULL && strcmp(arg, "w") == 0)
+  {
+    print_watchpoints();
+  }
   else
   {
     printf("Usage: info r | info w\n");
@@ -194,167 +188,97 @@ static int cmd_info(char *args)
   return 0;
 }
 //
-// static int cmd_x(char *args)//打印内存
-// {
-//   char *offset = strtok(NULL, " ");
-//   if(offset == NULL)
-//   { 
-//     printf("cmd_x Usage: x N Expr\n");
-//     return 0;
-//   }
-//
-//   int32_t mem_offset = strtol(offset, NULL , 10);
-//
-//   char *m_addr = strtok(NULL," ");
-//   if(m_addr == NULL)
-//   { 
-//     printf("cmd_x Usage: x N Expr\n");
-//     return 0;
-//   }
-//   vaddr_t mem_addr = strtol(m_addr, NULL, 16);
-//   
-//   printf("\nAddress     Data(32-bit)\n");
-//   for(int i = 0; i < mem_offset; i++)
-//   {
-//     printf("0x%08x  0x%08x\n", mem_addr, vaddr_read(mem_addr, 4)); //4字节数据
-//     mem_addr += 4; 
-//   }
-//
-//   return 0;
-//
-// }
+static int cmd_x(char *args)//打印内存
+{
+  char *offset = strtok(NULL, " ");
+  if(offset == NULL)
+  { 
+    printf("cmd_x Usage: x N Expr\n");
+    return 0;
+  }
+  int32_t mem_offset = strtol(offset, NULL , 10);
+  char *m_addr = strtok(NULL," ");
+  if(m_addr == NULL)
+  { 
+    printf("cmd_x Usage: x N Expr\n");
+    return 0;
+  }
+  vaddr_t mem_addr = strtol(m_addr, NULL, 16);
+  
+  printf("\nAddress     Data(32-bit)\n");
+  for(int i = 0; i < mem_offset; i++)
+  {
+    printf("0x%08x  0x%08x\n", mem_addr, pmem_read_u32(mem_addr));
+    mem_addr += 4; 
+  }
+
+  return 0;
+}
 
 // void print_tokens(char *e); //打印token的函数
 
-// static int cmd_p(char *args)
-// {
-//   bool success;
-//   word_t result = expr(args, &success);   //word_t is uint32_t
-//   if (success) 
-//   {
-//     printf("Result: %u (0x%x)\n", result, result);
-//     print_tokens(args);
-//   } 
-//   else 
-//   {
-//     printf("Invalid expression\n");
-//   }
-//   return 0;
-// }
+static int cmd_p(char *args)
+{
+  if (args == NULL || *args == '\0')
+  {
+    printf("Usage: p <expression>\n");
+    return 0;
+  }
+  bool success;
+  word_t result = expr(args, &success);
+  if (success)
+  {
+    printf("Expr = %u (0x%08x)\n", result, result);
+  }
+  else
+  {
+    printf("Invalid expression\n");
+  }
+  return 0;
+}
 
 
-
-// static int cmd_t_expr(char *args)
-// {
-//   FILE *fp = fopen(args, "r");//kedu
-//   if(!fp)
-//   {
-//     printf("Fail to open test file %s\n",args);
-//     return 0;
-//   }
-
-//   char line[1024];
-
-//   int passed = 0, total = 0;//通过测试数与测试总数
-//   int div_zero_count = 0;  // 初始化除0计数
-
-//   while ( fgets(line, sizeof(line),fp) ) //把文件读到line里面 每次读一行？
-//   {
-//     uint32_t expected;
-//     char expr_str[1024];
-
-//     if( (sscanf(line, "%u %[^\n]", &expected, expr_str)) == 2)//如果成功读取并存储
-//     //读取一行 前面的整数存expected 后面的直到换行符存expr_str
-//     {
-//       // 去掉前导空格
-//       char *start = expr_str;
-//       while (*start == ' ') start++;
-//       strcpy(expr_str, start);
-
-//       bool success;
-//       div_zero_flag = false;//初始化false
-
-//       word_t result = expr(expr_str, &success);
-
-//       if(div_zero_flag)
-//       {
-//         div_zero_count++;
-//         continue;
-//       }
-
-//       if(!success)
-//       {
-//         printf("Invalid expr %s", expr_str);
-//         continue;
-//       }
-//       else if(result == expected)
-//       {
-//         passed ++;
-//       }
-//       else 
-//       {
-//         printf("not equal: expected is %u yours is %u\n",expected, result);
-//         printf("expr is %s\n",expr_str);
-//       }
-
-//       total ++;
-//     }
-//   }
-
-//   fclose(fp);  // 关闭文件
-//   printf("passed :%d total: %d div_zero: %d\n", passed, total, div_zero_count);
-//   return 0;
-
-// }
+static int cmd_w(char *args)
+{
+  if (args == NULL || *args == '\0')
+  {
+    printf("Usage: w <expression>\n");
+    return 0;
+  }
+  bool success;
+  word_t result = expr(args, &success);
+  if (success)
+  {
+    WP *wp = new_wp(args, result);
+    if (wp) {
+      printf("Watchpoint %d set: %s = 0x%08x\n", wp->NO, args, result);
+    }
+  }
+  else
+  {
+    printf("Failed to evaluate expression\n");
+  }
+  return 0;
+}
 
 
-// static int cmd_w(char *args)
-// {
-//   bool success ;
-//   char *wp_expr;//不需要strtok分割
-
-//    if (args == NULL || *args == '\0') 
-//   {
-//     printf("Usage: w <expression>\n");
-//     return 0;
-//   }
-
-//   wp_expr = args;
-
-//   int result = expr(wp_expr, &success);//得到结果
-//   if(success == true)
-//   {
-//     WP *wp = new_wp(wp_expr, result);
-//     if (wp) {
-//       printf("Watchpoint %d set: %s = 0x%08x\n", wp->NO, wp_expr, (uint32_t)result);
-//     }
-//   }
-
-
-
-//   return 0;
-// }
-
-
-// static int cmd_d(char *args)
-// {
-//   char *wp_no_str = strtok(args, " ");
-//   if (wp_no_str == NULL) {
-//     printf("Usage: d <NO>\n");
-//     return 0;
-//   }
-  
-//   char *endptr;
-//   int wp_num = strtol(wp_no_str, &endptr, 10);
-//   if (*endptr != '\0' || wp_num < 0) 
-//   {
-//     printf("Invalid watchpoint number: %s\n", wp_no_str);
-//     return 0;
-//   }
-  
-//   free_wp(wp_num);  // 传入编号，让 free_wp 内部查找
-//   return 0;
-// }
+static int cmd_wd(char *args)
+{
+  char *wp_no_str = strtok(args, " ");
+  if (wp_no_str == NULL) {
+    printf("Usage: wd <NO>\n");
+    return 0;
+  }
+  char *endptr;
+  long wp_num = strtol(wp_no_str, &endptr, 10);
+  if (*endptr != '\0' || wp_num < 0)
+  {
+    printf("Invalid watchpoint number: %s\n", wp_no_str);
+    return 0;
+  }
+  free_wp((int)wp_num);
+  return 0;
+}
 
 
 
@@ -422,12 +346,10 @@ void npc_sdb_mainloop()
 // __attribute__((used)): 通过 monitor.c 初始化调用（CONFIG_TARGET_AM）
 // cppcheck-suppress unusedFunction: 通过条件编译被调用
 __attribute__((used))
-void npc_init_sdb() 
-//do nothing
+void npc_init_sdb()
 {
   /* Compile the regular expressions. */
-//   init_regex();// 编译正则表达式
-    ;
+  init_regex();// 编译正则表达式
   /* Initialize the watchpoint pool. */
-//   init_wp_pool();// 初始化监视点池
+  init_wp_pool();// 初始化监视点池
 }

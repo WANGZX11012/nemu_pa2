@@ -80,6 +80,8 @@ NPC_NEMU_C_SRCS := \
   $(NPC_NEMU_ROOT)/src/isa/npc_reg.c \
   $(NPC_NEMU_ROOT)/src/monitor/monitor.c \
   $(NPC_NEMU_ROOT)/src/monitor/sdb/sdb.c \
+  $(NPC_NEMU_ROOT)/src/monitor/sdb/expr.c \
+  $(NPC_NEMU_ROOT)/src/monitor/sdb/watchpoint.c \
   $(NPC_NEMU_ROOT)/src/utils/log.c \
   $(NPC_NEMU_ROOT)/src/utils/itbuf.c \
   $(NPC_NEMU_ROOT)/src/utils/disasm.c \
@@ -101,6 +103,8 @@ NPC_NEMU_C_OBJS := \
   $(BUILD_DIR)/npc_reg.o \
   $(BUILD_DIR)/monitor.o \
   $(BUILD_DIR)/sdb.o \
+  $(BUILD_DIR)/expr.o \
+  $(BUILD_DIR)/watchpoint.o \
   $(BUILD_DIR)/log.o \
   $(BUILD_DIR)/itbuf.o \
   $(BUILD_DIR)/disasm.o \
@@ -167,6 +171,12 @@ $(BUILD_DIR)/monitor.o: $(NPC_NEMU_ROOT)/src/monitor/monitor.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR)/sdb.o: $(NPC_NEMU_ROOT)/src/monitor/sdb/sdb.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/expr.o: $(NPC_NEMU_ROOT)/src/monitor/sdb/expr.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/watchpoint.o: $(NPC_NEMU_ROOT)/src/monitor/sdb/watchpoint.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR)/log.o: $(NPC_NEMU_ROOT)/src/utils/log.c | $(BUILD_DIR)
