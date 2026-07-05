@@ -35,13 +35,13 @@ static void restart() {
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
   cpu.csr.mstatus = 0x1800; //初始化mstatus
-
+  // mcycle/mvendorid/marchid 已移除（AM trm.c 不再读取，struct 字段已注释）
 }
 
 void init_isa() {
   /* Load built-in image. */
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
-
+  // guest_to_host(0x80000000) = pmem + 0
   /* Initialize this virtual computer system. */
   restart();
 }

@@ -16,6 +16,7 @@
 #include <isa.h>
 #include <cpu/difftest.h>
 #include "../local-include/reg.h"
+#include <memory/paddr.h>  // paddr_read, 用于读取当前指令来跳过 mcycle 比对
 
 #include "itbuf.h" //new
 

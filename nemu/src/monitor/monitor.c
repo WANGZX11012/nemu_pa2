@@ -63,7 +63,7 @@ static long load_img() {
 
   fseek(fp, 0, SEEK_SET);
   int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
-  //              直接读到 0x80000000 处, 覆盖掉 img[] !
+  //               直接读到 0x80000000 处, 覆盖掉 img[] !
   assert(ret == 1);
 
   fclose(fp);
@@ -109,16 +109,16 @@ void init_monitor(int argc, char *argv[])
   /* Perform some global initialization. */
 
   /* Parse arguments. */
-  parse_args(argc, argv);
+  parse_args(argc, argv);   //解析命令行参数
 
   /* Set random seed. */
   init_rand();
 
   /* Open the log file. */
-  init_log(log_file);
+  init_log(log_file);        //打开log
 
   /* Initialize memory. */
-  init_mem();
+  init_mem();               //初始化内存
 
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());

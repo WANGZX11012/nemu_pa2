@@ -36,11 +36,10 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 
   cpu.csr.mstatus = mstatus; //写回
 
-
-
   return cpu.csr.mtvec;//要return 下一个pc
 }
 
-word_t isa_query_intr() {
+word_t isa_query_intr() 
+{
   return INTR_EMPTY;
 }

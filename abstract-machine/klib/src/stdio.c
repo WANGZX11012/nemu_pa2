@@ -95,6 +95,32 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       *o++ = ch;
       p++;
     }
+    else if (*p == 'p')
+    {
+      unsigned long v = (unsigned long)va_arg(ap, void*);
+      *o++ = '0'; *o++ = 'x';
+      if(v == 0)
+      {
+        *o++ = '0';
+      }
+      else
+      {
+        char buf[32];
+        int i = 0;
+        while (v)
+        {
+          int d = v % 16;
+          if(d < 10)  buf[i++] = '0' + d;
+          else  buf[i++] = 'a' + (d - 10);
+          v /= 16;
+        }
+        while (i--)
+        {
+          *o++ = buf[i];
+        }
+      }
+      p++;
+    }
     else 
     {
       *o++ = '%';
@@ -117,7 +143,7 @@ int sprintf(char *out, const char *fmt, ...)
 
 int printf(const char *fmt, ...) 
 {
-  char buf[1024];
+  char buf[4096];
   va_list ap;
   va_start(ap, fmt);
   int ret = vsprintf(buf, fmt, ap);
