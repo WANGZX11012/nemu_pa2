@@ -23,12 +23,7 @@ void __am_gpu_init()
   }
   outl(SYNC_ADDR,1);   //写1 刷新请求
 
-  // After showing the boot pattern, clear to black and refresh again.
-  for (i = 0; i < w * h; i++) {
-    fb[i] = 0;
-  }
-  outl(SYNC_ADDR, 1);
-}
+
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) 
 {

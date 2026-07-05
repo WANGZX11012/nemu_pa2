@@ -28,7 +28,7 @@ CFLAGS   := -O2 -g -Wall -Wextra
 ## C++ 编译选项同上
 CXXFLAGS := -O2 -g -Wall -Wextra
 ## 链接选项：链接 readline（给 sdb 命令行编辑/历史能力）
-LDFLAGS  := -lreadline -ldl
+LDFLAGS  := -lreadline -ldl -lSDL2
 
 ## 先尝试读取菜单配置生成的结果；如果还没跑 menuconfig，则保持默认值
 -include $(NPC_NEMU_HOME)/include/config/auto.conf
