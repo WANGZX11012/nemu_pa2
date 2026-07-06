@@ -113,7 +113,7 @@ static void execute(uint64_t n)
     if (nemu_state.state != NEMU_RUNNING) break;
 #ifdef CONFIG_DEVICE
     // Rate-limit: call device_update every ~3800 instructions (~60Hz)
-    if (++dev_update_cnt >= 38000) { dev_update_cnt = 0; device_update(); }
+    if (++dev_update_cnt >= 380000) { dev_update_cnt = 0; device_update(); }
 #endif
   }
 }
