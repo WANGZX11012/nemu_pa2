@@ -15,7 +15,18 @@ static const char *tests[256] = {
   ['p'] = "x86 virtual memory test",
 };
 
-int main(const char *args) {
+
+// CASE 宏（amtest.h:17）展开：
+// case 'v': {
+//     void video_test();
+//     entry = video_test;
+//     IOE;              // ← ({ ioe_init(); })  初始化所有 IO 设备
+//     video_test();     // ← 进入测试
+//     break;
+// }
+
+int main(const char *args) 
+{
   switch (args[0]) {
     CASE('h', hello);
     CASE('i', hello_intr, IOE, CTE(simple_trap));  //注册cte init

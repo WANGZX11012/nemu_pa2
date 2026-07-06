@@ -22,8 +22,7 @@ void __am_gpu_init()
     fb[i] = i;
   }
   outl(SYNC_ADDR,1);   //写1 刷新请求
-
-
+}
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) 
 {

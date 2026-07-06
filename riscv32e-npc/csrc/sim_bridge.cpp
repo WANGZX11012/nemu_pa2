@@ -3,6 +3,7 @@
 #include "Vtop.h"
 #include "Vtop___024root.h"
 #include "dpic.h"
+#include "npc_device.h"
 #include "verilated.h"
 
 #include <cstdio>
@@ -68,6 +69,7 @@ extern "C" void npc_sim_init(void)
 extern "C" void npc_sim_step_once(void) //npc 电路时钟脉冲一次
 {
   if (top == nullptr || sim_halted || sim_abort) return;
+  if (npc_vga_quit()) { sim_halted = true; sim_halt_ret = 0; return; }
 
   uint32_t pc = top->pc;
   last_pc   = pc;

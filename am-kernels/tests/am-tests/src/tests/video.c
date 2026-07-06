@@ -15,7 +15,8 @@ static int used[N][N];
 
 static uint32_t color_buf[32 * 32];
 
-void redraw() {
+void redraw() //画纯色 
+{
   int w = io_read(AM_GPU_CONFIG).width / N;
   int h = io_read(AM_GPU_CONFIG).height / N;
   int block_size = w * h;
@@ -25,7 +26,7 @@ void redraw() {
   for (y = 0; y < N; y ++) {
     for (x = 0; x < N; x ++) {
       for (k = 0; k < block_size; k ++) {
-        color_buf[k] = canvas[y][x];
+        color_buf[k] = canvas[y][x];   //被链接放在pmem里面
       }
       io_write(AM_GPU_FBDRAW, x * w, y * h, color_buf, w, h, false);
     }

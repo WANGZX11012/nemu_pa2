@@ -18,4 +18,7 @@ uint32_t npc_device_read(uint32_t addr, int len);
 }
 #endif
 
+// 供仿真循环查询：SDL 窗口是否被关闭
+bool npc_vga_quit(void);
+
 #endif

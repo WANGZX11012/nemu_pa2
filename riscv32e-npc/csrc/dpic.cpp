@@ -184,6 +184,18 @@ extern "C" size_t pmem_get_word_count(void)
   return pmem_words_size;
 }
 
+// 批量读：从 pmem 内存中拷贝 count 个 word 到目标缓冲区（GPU BLIT 用）
+extern "C" void pmem_read_bulk(uint32_t addr, uint32_t *dst, int count) {
+  if (addr < PC_BASE) addr = (addr & 0x07ffffffu) | PC_BASE;
+  uint32_t index = (addr - PC_BASE) >> 2;
+  for (int i = 0; i < count; i++) {
+    if (index + i < pmem_words_size)
+      dst[i] = pmem_words[index + i];
+    else
+      dst[i] = 0;
+  }
+}
+
 extern "C" void npc_ebreak(int code) //连接sim bridge
 {
   printf("DPI-C: ebreak, a0 = %d\n", code);//code 就是a0 中的值

@@ -28,7 +28,7 @@ CFLAGS   := -O2 -g -Wall -Wextra
 ## C++ 编译选项同上
 CXXFLAGS := -O2 -g -Wall -Wextra
 ## 链接选项：链接 readline（给 sdb 命令行编辑/历史能力）
-LDFLAGS  := -lreadline -ldl -lSDL2
+LDFLAGS  := -lreadline -ldl
 
 ## 先尝试读取菜单配置生成的结果；如果还没跑 menuconfig，则保持默认值
 -include $(NPC_NEMU_HOME)/include/config/auto.conf
@@ -42,6 +42,12 @@ $(CONFIG_STAMP): $(AUTO_CONF)
 	@touch $@
 
 
+
+## VGA：当 CONFIG_HAS_VGA=y 时启用 SDL2（传宏给 C++ + 链接 SDL2）
+ifeq ($(CONFIG_HAS_VGA),y)
+CXXFLAGS += -DCONFIG_HAS_VGA
+LDFLAGS  += -lSDL2
+endif
 
 ## ITRACE_COND：从 Kconfig 字符串转成 C 编译选项
 remove_quote = $(patsubst "%",%,$(patsubst "%",%,$1))
