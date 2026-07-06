@@ -96,13 +96,10 @@ static void exec_once(Decode *s, vaddr_t pc)
 #endif
 }
 
-static void execute(uint64_t n)
+static void execute(uint64_t n) 
 {
   Decode s;
-#ifdef CONFIG_DEVICE
-  int dev_update_cnt = 0;
-#endif
-  for (;n > 0; n --)
+  for (;n > 0; n --) 
   {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;              // 计数
@@ -111,10 +108,7 @@ static void execute(uint64_t n)
     // if (cpu.csr.mcycle_lo == 0) cpu.csr.mcycle_hi ++;
     trace_and_difftest(&s, cpu.pc); //执行指令后 进行difftest
     if (nemu_state.state != NEMU_RUNNING) break;
-#ifdef CONFIG_DEVICE
-    // Rate-limit: call device_update every ~3800 instructions (~60Hz)
-    if (++dev_update_cnt >= 3800) { dev_update_cnt = 0; device_update(); }
-#endif
+    IFDEF(CONFIG_DEVICE, device_update());
   }
 }
 
