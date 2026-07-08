@@ -22,6 +22,7 @@ bool npc_sim_is_aborted(void);
 int npc_sim_halt_code(void);
 void npc_sim_mark_halt(int code);
 void npc_sim_mark_abort(void);
+bool npc_sim_vga_quit(void);
 
 #ifdef __cplusplus
 }

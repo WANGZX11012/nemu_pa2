@@ -45,6 +45,11 @@ extern "C" bool npc_sim_is_aborted(void)
   return sim_abort;
 }
 
+extern "C" bool npc_sim_vga_quit(void)
+{
+  return npc_vga_quit();
+}
+
 
 
 extern "C" void npc_sim_init(void) 
@@ -68,8 +73,9 @@ extern "C" void npc_sim_init(void)
 
 extern "C" void npc_sim_step_once(void) //npc 电路时钟脉冲一次
 {
-  if (top == nullptr || sim_halted || sim_abort) return;
+  if (top == nullptr || sim_abort) return;
   if (npc_vga_quit()) { sim_halted = true; sim_halt_ret = 0; return; }
+  if (sim_halted) return;
 
   uint32_t pc = top->pc;
   last_pc   = pc;

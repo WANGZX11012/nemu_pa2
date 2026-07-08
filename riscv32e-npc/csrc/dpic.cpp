@@ -185,10 +185,12 @@ extern "C" size_t pmem_get_word_count(void)
 }
 
 // 批量读：从 pmem 内存中拷贝 count 个 word 到目标缓冲区（GPU BLIT 用）
-extern "C" void pmem_read_bulk(uint32_t addr, uint32_t *dst, int count) {
+extern "C" void pmem_read_bulk(uint32_t addr, uint32_t *dst, int count) 
+{
   if (addr < PC_BASE) addr = (addr & 0x07ffffffu) | PC_BASE;
   uint32_t index = (addr - PC_BASE) >> 2;
-  for (int i = 0; i < count; i++) {
+  for (int i = 0; i < count; i++) 
+  {
     if (index + i < pmem_words_size)
       dst[i] = pmem_words[index + i];
     else

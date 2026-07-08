@@ -3,6 +3,8 @@ VERILATOR = verilator
 
 VSRCS = $(wildcard vsrc/*.v)  #把 vsrc/ 目录下所有 .v 文件都收集到 VSRCS 变量里。
 CSRCS = $(wildcard csrc/*.cpp)
+
+
 VHSRCS = $(wildcard vsrc/*.vh)  #把 vsrc/ 目录下所有 .vh 文件都收集到 VSRCS 变量里。
 
 OBJ_DIR = obj_dir
@@ -23,6 +25,19 @@ NPC_CSRCS_INC = $(abspath ./csrc)
 NPC_AUTO_CONF :=$(abspath ./npc-nemu/include/config/auto.conf) 
 -include $(NPC_AUTO_CONF)
 
+ifeq ($(CONFIG_HAS_SERIAL),y)
+CSRCS += csrc/device/serial.cpp
+endif
+ifeq ($(CONFIG_HAS_TIMER),y)
+CSRCS += csrc/device/timer.cpp
+endif
+ifeq ($(CONFIG_HAS_VGA),y)
+CSRCS += csrc/device/vga.cpp
+endif
+ifeq ($(CONFIG_HAS_KEYBOARD),y)
+CSRCS += csrc/device/keyboard.cpp
+endif
+
 ifeq ($(CONFIG_DIFFTEST),y)
 ENABLE_DIFFTEST :=1
 else
@@ -31,6 +46,9 @@ endif
 
 # Pass include paths and feature macros to verilator's -CFLAGS
 VERILATOR_FLAGS += -CFLAGS "-I$(NPC_NEMU_INC) -I$(NPC_CSRCS_INC) -I$(AM_INC) -I$(KLIB_INC) -DENABLE_DIFFTEST=$(ENABLE_DIFFTEST)" 
+ifeq ($(CONFIG_HAS_VGA),y)
+VERILATOR_FLAGS += -LDFLAGS "-lSDL2"
+endif
 
 # ═══════════════════════════════════════════════════════════
 # 统一构建nemu和npc

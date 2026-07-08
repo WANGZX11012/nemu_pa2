@@ -123,18 +123,18 @@ void npc_cpu_exec(uint64_t n)
     return;
   }
 
-
-  
-
-
   if (n == (uint64_t)-1) 
   {
         while (npc_state.state != NPC_END &&
           npc_state.state != NPC_ABORT &&
-          npc_state.state != NPC_QUIT) 
+          npc_state.state != NPC_QUIT)
         {
             npc_exec_once();
         }
+    // 程序退出了但 VGA 窗口可能还开着，等用户关窗
+    printf("[CPU] waiting for VGA window close...\n");
+    while (!npc_sim_vga_quit()) { /* vga_quit() 内部 poll SDL 事件 */ }
+    printf("[CPU] VGA window closed, exiting\n");
     return;
   }
 
